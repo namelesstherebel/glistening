@@ -5,6 +5,7 @@
 #include <array>
 #include <cmath>
 #include <complex>
+#include <cstdint>
 #include <vector>
 
 namespace tv {
@@ -85,7 +86,8 @@ private:
     std::vector<std::complex<float>> buf_;
     std::vector<float> prevLog_, env_, bassHist_;
     int pos_ = 0, hopFill_ = 0, envPos_ = 0, envFilled_ = 0, bassPos_ = 0;
-    long samples_ = 0, hops_ = 0;
+    std::int64_t samples_ = 0;
+    long hops_ = 0;
     Features f_;
 
     float fluxPrev1_ = 0, fluxPrev2_ = 0, fluxPeak_ = 1e-3f;
