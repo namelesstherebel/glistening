@@ -566,7 +566,7 @@ static void testEncoders() {
           "kitty in-band frame: ≤4096-byte base64 chunks, m=1 until the last, full payload", fmt("%.0f chunks", chunks));
     const std::string sh = kittyShm("/glistening-1-2", w, h, rgb.size(), 1, 80, 24, Z_CELLS);
     check(sh.find("t=s") != std::string::npos && sh.find("S=" + std::to_string(rgb.size())) != std::string::npos &&
-              sh.find("z=-1073741825") != std::string::npos && sh.find(b64((const unsigned char *)"/glistening-1-2", 12)) != std::string::npos,
+              sh.find("z=-1073741825") != std::string::npos && sh.find(b64((const unsigned char *)"/glistening-1-2", 15)) != std::string::npos,
           "kitty shm frame names the object, its size and the z layer");
 
     Screen ui(40, 12);

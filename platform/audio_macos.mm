@@ -64,7 +64,7 @@ public:
             UInt32 sz = sizeof fmt_;
             if ((st = AudioObjectGetPropertyData(tap_, &fa, 0, nullptr, &sz, &fmt_)) != noErr) return "cannot read the tap format: " + osErr(st);
             if (fmt_.mFormatID != kAudioFormatLinearPCM || !(fmt_.mFormatFlags & kAudioFormatFlagIsFloat) || fmt_.mBitsPerChannel != 32 ||
-                fmt_.mChannelsPerFrame < 1 || fmt_.mSampleRate < 8000)
+                fmt_.mChannelsPerFrame < 1 || !(fmt_.mSampleRate >= 8000 && fmt_.mSampleRate <= 384000))
                 return "unexpected tap format (" + std::to_string(int(fmt_.mSampleRate)) + " Hz, " + std::to_string(fmt_.mBitsPerChannel) + " bit)";
             rs_ = Resampler(fmt_.mSampleRate);
 
@@ -109,7 +109,9 @@ private:
     Resampler rs_;
     std::atomic<long long> startNs_{0}, lastNs_{0};
     static constexpr int CHUNK = 2048;
-    float stereo_[2 * CHUNK], out_[2 * (CHUNK * 4 + 8)];  // out_: room for upsampling from 11 kHz
+    // out_ holds maxOut(CHUNK) at the lowest accepted rate: 8 kHz -> 44.1 kHz is x5.51.
+    static constexpr int OUT = CHUNK * 6 + 16;
+    float stereo_[2 * CHUNK], out_[2 * OUT];
 
     // Real-time thread: no locks, no allocation. Takes the first two channels
     // of whatever layout arrives (one interleaved buffer, or one per channel).
@@ -130,7 +132,7 @@ private:
             if (planar)
                 for (int i = 0; i < n; i++) self.stereo_[2 * i] = L[off + i], self.stereo_[2 * i + 1] = R[off + i];
             else downmix(L + size_t(off) * ch0, ch0, n, self.stereo_);
-            if (self.rs_.maxOut(n) > CHUNK * 4 + 8) return noErr;  // a format this code doesn't expect (rate under 11 kHz)
+            if (self.rs_.maxOut(n) > OUT) return noErr;  // unreachable for the rates open() accepts
             self.ring_.push(self.out_, size_t(self.rs_.run(self.stereo_, n, self.out_)));
         }
         return noErr;

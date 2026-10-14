@@ -7,8 +7,10 @@
 	<key>CFBundleIdentifier</key>
 	<string>io.github.namelesstherebel.glistening</string>
 	<key>CFBundleName</key>
-	<string>glistening</string>
+	<string>gListening</string>
+	<key>CFBundleDisplayName</key>
+	<string>gListening</string>
 	<key>NSAudioCaptureUsageDescription</key>
-	<string>glistening draws visuals from the audio your Mac is playing. The sound is analysed live and never recorded or sent anywhere.</string>
+	<string>gListening draws visuals from the audio your Mac is playing. The sound is analysed live and never recorded or sent anywhere.</string>
 </dict>
 </plist>

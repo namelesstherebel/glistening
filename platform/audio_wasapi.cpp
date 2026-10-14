@@ -7,7 +7,8 @@
 //            the device's rate and channel layout.
 // Both follow the default device: when it changes or disappears the stream is
 // reopened (loopback delivers silence meanwhile). Loopback sends no packets
-// while nothing plays, so the capture fills those gaps with silence.
+// while nothing plays, so the capture fills such gaps (only gaps over 100 ms,
+// never mid-stream: the device clock is not the steady clock) with silence.
 // https://learn.microsoft.com/en-us/windows/win32/coreaudio/loopback-recording
 #include "platform.hpp"
 
@@ -161,10 +162,8 @@ private:
             return;
         }
         std::vector<float> dev, st, out;
-        const auto start = Clock::now();
-        auto lastCheck = start;
-        long long emitted = 0;  // frames pushed at SR, data and filled gaps
-        auto push = [&](const float *p, int n) { ring_.push(p, size_t(n)), emitted += n; };
+        auto lastCheck = Clock::now(), covered = lastCheck;  // covered: audio (or silence) delivered up to here
+        auto push = [&](const float *p, int n) { ring_.push(p, size_t(n)); };
         while (!stop_) {
             Sleep(10);
             bool lost = !cap_;
@@ -180,6 +179,7 @@ private:
                 cap_->ReleaseBuffer(frames);
                 downmix(dev.data(), fmt_.channels, int(frames), st.data());
                 push(out.data(), rs_.run(st.data(), int(frames), out.data()));
+                covered = Clock::now();
             }
             if (FAILED(h)) lost = true;  // AUDCLNT_E_DEVICE_INVALIDATED and friends
             const auto now = Clock::now();
@@ -188,10 +188,13 @@ private:
                 std::lock_guard<std::mutex> l(mu_);
                 desc_ = "WASAPI loopback: no default output device (retrying)";
             }
-            // Nothing playing: no packets. Keep the stream continuous, 30 ms behind the clock.
-            const long long due = (long long)(std::chrono::duration<double>(now - start).count() * SR) - SR * 3 / 100;
-            static const float zeros[2 * 512] = {};
-            while (emitted < due - SR / 20) push(zeros, int(std::min<long long>(512, due - emitted)));
+            // Nothing playing: no packets. Keep the stream continuous so the visuals decay.
+            if (now - covered > std::chrono::milliseconds(100)) {
+                static const float zeros[2 * 512] = {};
+                for (long long n = (long long)(std::chrono::duration<double>(now - covered).count() * SR); n > 0; n -= 512)
+                    push(zeros, int(std::min<long long>(512, n)));
+                covered = now;
+            }
         }
         close();
         if (SUCCEEDED(co)) CoUninitialize();

@@ -297,10 +297,14 @@ static bool spawn(Process::Impl &p, const std::wstring &app, std::wstring cmdlin
     return true;
 }
 
+// Executables only: CreateProcess runs .bat/.cmd through cmd.exe, which
+// re-parses the arguments (a file name could inject commands).
 bool Process::start(const std::vector<std::string> &argv, bool blocking) {
     if (argv.empty() || p_->proc) return false;
     const std::string path = findProgram(argv[0]);
-    if (path.empty()) return false;
+    std::string ext = path.size() > 4 ? path.substr(path.size() - 4) : "";
+    for (char &c : ext) c = char(tolower((unsigned char)c));
+    if (ext != ".exe" && ext != ".com") return false;
     std::wstring cmd = quoteArg(wide(path));
     for (size_t i = 1; i < argv.size(); i++) cmd += L" " + quoteArg(wide(argv[i]));
     return spawn(*p_, wide(path), cmd, blocking);

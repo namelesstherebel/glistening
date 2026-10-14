@@ -94,6 +94,8 @@ static int run(const std::string &exe, const std::string &mode, std::string &out
     InitializeProcThreadAttributeList(nullptr, 1, 0, &size);
     STARTUPINFOEXW si{};
     si.StartupInfo.cb = sizeof si;
+    // Null standard handles attach to ConPTY instead of inheriting CI output pipes.
+    si.StartupInfo.dwFlags = STARTF_USESTDHANDLES;
     si.lpAttributeList = (LPPROC_THREAD_ATTRIBUTE_LIST)HeapAlloc(GetProcessHeap(), 0, size);
     InitializeProcThreadAttributeList(si.lpAttributeList, 1, 0, &size);
     UpdateProcThreadAttribute(si.lpAttributeList, 0, PROC_THREAD_ATTRIBUTE_PSEUDOCONSOLE, pc, sizeof pc, nullptr, nullptr);

@@ -6,9 +6,9 @@ Music, rendered in your terminal. Fourteen original GLSL scenes follow your syst
 
 ## Installation
 
-**Portability validation is in progress. No installable release has been published yet.** Native support and installation commands below are being tested in the public pull request.
+**No installable release has been published yet.** Pre-release builds are tested in [the public pull request](https://github.com/namelesstherebel/glistening/pull/1); successful builds provide a `glistening-npm` archive in GitHub Actions artifacts. Download and extract that archive to obtain the npm `.tgz`.
 
-Release bundles contain native executables for Linux x64, macOS Apple Silicon and Intel, and Windows x64. Node.js 20 or newer runs the npm launcher; end users do not need a C++ compiler. Download the npm `.tgz` from [Releases](https://github.com/namelesstherebel/glistening/releases), then:
+Release bundles contain native executables for Linux x64, macOS Apple Silicon and Intel, and Windows x64. Node.js 20 or newer runs the npm launcher; end users do not need a C++ compiler. Use the npm `.tgz` from CI artifacts, or from [Releases](https://github.com/namelesstherebel/glistening/releases) once published, then:
 
 ```sh
 npm install -g ./glistening-0.1.0.tgz
@@ -25,8 +25,8 @@ You can also use the native executable directly without Node.js. FFmpeg must be 
 | OS | Runtime requirements | Dependency setup |
 |---|---|---|
 | macOS 14.2+ | System OpenGL and CoreAudio; FFmpeg for files | `brew install ffmpeg` |
-| Windows 10/11 x64 | GPU driver with OpenGL 3.3; WASAPI output endpoint; FFmpeg for files | `winget install --id Gyan.FFmpeg --exact --source winget` |
-| Linux x64 | EGL/OpenGL 3.3; PulseAudio or PipeWire with Pulse compatibility; FFmpeg for files | `glistening setup` installs client tools, Mesa/EGL, and FFmpeg on Debian/Ubuntu, Arch, or Fedora |
+| Windows 10 1809+ / 11 x64 | GPU driver with OpenGL 3.3; WASAPI output endpoint; FFmpeg for files | `winget install --id Gyan.FFmpeg --exact --source winget` |
+| Linux x64 with glibc 2.35+ (Ubuntu 22.04 / Debian 12 or newer) | EGL/OpenGL 3.3; PulseAudio or PipeWire with Pulse compatibility; FFmpeg for files | `glistening setup` installs client tools, Mesa/EGL, and FFmpeg on Debian/Ubuntu, Arch, or Fedora |
 
 macOS captures system output through CoreAudio taps. First use requires the system's audio-recording permission; approve the OS prompt. Windows uses WASAPI loopback on the default output. Linux captures the default output monitor through `parec`; an existing PulseAudio-compatible sound server must be running. A microphone is not substituted for system output.
 

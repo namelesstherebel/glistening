@@ -234,7 +234,7 @@ static int selfTest() {
         printf("%s  %s  — %s\n", ok ? "PASS" : "FAIL", what.c_str(), detail.c_str());
         failures += !ok;
     };
-    printf("glistening %s self-test (%s; %s)\n", GLISTENING_VERSION, sys::osName(), backends());
+    printf("gListening %s self-test (%s; %s)\n", GLISTENING_VERSION, sys::osName(), backends());
 
     {  // The test track as a 48 kHz 5.1 device would deliver it, through downmix, resampler and ring.
         const int inRate = 48000, ch = 6, chunk = 480;
@@ -401,7 +401,7 @@ int main(int argc, char **argv) {
         return 2;
     }
     if (o.help) return printf("%s", USAGE), 0;
-    if (o.version) return printf("glistening %s (%s; %s)\n", GLISTENING_VERSION, sys::osName(), backends()), 0;
+    if (o.version) return printf("gListening %s (%s; %s)\n", GLISTENING_VERSION, sys::osName(), backends()), 0;
     if (o.selfTest) return selfTest();
     if (o.checkAudio) {
         sys::quitHandlers();
@@ -858,12 +858,12 @@ int main(int argc, char **argv) {
                 if (Cut c = dir.update(f)) pendingCut = c;
             });
         }
-        if (pcm.eof && eofAt < 0) eofAt = L.music.time, say(!finite ? "audio source ended" : "end of file", 4);
+        if (pcm.eof && eofAt < 0) eofAt = L.music.time, say(!finite ? "audio source ended" : o.testSignal ? "end of test signal" : "end of file", 4);
         if (pcm.eof && !eofChecked && pcm.poll()) {  // its exit status, as soon as it is known
             eofChecked = true;
             pcm.proc.stop();  // whatever the command left behind goes now, while its group id is still its own
             if (pcm.failed() && (finite || dump)) return restore(), sourceFailed(), 1;  // nobody can see a toast
-            if (pcm.failed()) say("audio source failed (is PipeWire/Pulse running?)", 4);
+            if (pcm.failed()) say(pcm.cap ? "system audio capture stopped: " + pcm.capErr : "audio source failed (is PipeWire/Pulse running?)", 4);
         }
         if (finite && eofAt >= 0 && L.music.time - eofAt > 1.5) g_quit = 1;
         if (!dump && o.secondsGiven && t0 - start > std::chrono::duration<double>(o.seconds)) g_quit = 1;

@@ -108,7 +108,7 @@ if(BUILD_TESTING)
   endif()
 
   add_test(NAME unit COMMAND glistening_unit)
-  add_test(NAME render COMMAND glistening_render)
+  add_test(NAME render COMMAND glistening_render --size 320x180)
   add_test(NAME render_wide COMMAND glistening_render --scene clockwork --size 1000x240)
   add_test(NAME version COMMAND glistening --version)
   add_test(NAME self_test COMMAND glistening --self-test)

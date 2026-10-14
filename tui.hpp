@@ -364,7 +364,7 @@ private:
         };
         std::vector<Line> L;
         const bool roomy = int(it.size()) + 9 <= maxH;
-        if (roomy) L.push_back({-1, "glistening"}), L.push_back({-1, ""});
+        if (roomy) L.push_back({-1, "gListening"}), L.push_back({-1, ""});
         L.push_back({-1, "SCENES"});
         for (size_t i = 0; i < it.size(); i++) {
             if (it[i].row == DirectorRow) {
@@ -387,7 +387,7 @@ private:
             const Line &l = L[first + r];
             const int y = y0 + 1 + r, x = x0 + 2, w = W - 4;
             if (l.item == -2) sc.text(x, y, fit(l.text, w), FAINT);
-            else if (l.item < 0) sc.text(x, y, fit(l.text, w), l.text == "glistening" ? FG : MUTED, DEF, l.text == "glistening" ? BOLD : 0);
+            else if (l.item < 0) sc.text(x, y, fit(l.text, w), l.text == "gListening" ? FG : MUTED, DEF, l.text == "gListening" ? BOLD : 0);
             else drawItem(sc, x, y, w, it[l.item], l.item == sel, st);
         }
         return {x0, y0, W, H};

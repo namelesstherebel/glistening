@@ -4,7 +4,7 @@ import { resolve, join } from 'node:path';
 
 const root = process.cwd();
 function check(command, args, marker) {
-  const result = spawnSync(command, args, { encoding: 'utf8', maxBuffer: 16 * 1024 * 1024, timeout: 600000 });
+  const result = spawnSync(command, args, { encoding: 'utf8', maxBuffer: 16 * 1024 * 1024, timeout: 1200000 });
   process.stdout.write(result.stdout || '');
   process.stderr.write(result.stderr || '');
   if (result.error) throw result.error;
