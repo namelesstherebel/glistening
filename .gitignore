@@ -9,3 +9,6 @@
 /tests/test
 /tests/render
 /docs/frames/
+
+/prebuilt/
+/artifacts/

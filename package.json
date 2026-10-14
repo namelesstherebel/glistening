@@ -1,0 +1,17 @@
+{
+  "name": "glistening",
+  "version": "0.1.0",
+  "description": "gListening: music, rendered in your terminal",
+  "license": "GPL-3.0-only",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/namelesstherebel/glistening.git"
+  },
+  "bin": { "glistening": "bin/glistening.cjs" },
+  "files": ["bin/", "prebuilt/", "LICENSE"],
+  "engines": { "node": ">=20" },
+  "scripts": {
+    "test": "node --test tests/package.test.cjs",
+    "test:install": "node scripts/check-installed.mjs"
+  }
+}
