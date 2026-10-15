@@ -10,8 +10,12 @@ float erf1(float x) {
 }
 void main() {
     float across = exp(-2.0 * vLocal.y * vLocal.y);
-    // sqrt(PI/8)/half keeps a shrinking segment at the dot's integrated energy.
-    float along = vHalf < 0.001 ? exp(-2.0 * vLocal.x * vLocal.x)
-                               : 0.5 * (erf1((vLocal.x + vHalf) * 1.4142) - erf1((vLocal.x - vHalf) * 1.4142)) * max(1.0, 0.6266571 / vHalf);
+    float along = exp(-2.0 * vLocal.x * vLocal.x);
+    if (vHalf > 0.01) {
+        // Normalize shrinking segments to a dot's energy. Blend the dot limit
+        // before erf subtraction loses precision for very short segments.
+        float segment = 0.5 * (erf1((vLocal.x + vHalf) * 1.4142) - erf1((vLocal.x - vHalf) * 1.4142)) * max(1.0, 0.6266571 / vHalf);
+        along = mix(along, segment, smoothstep(0.01, 0.05, vHalf));
+    }
     o = vec4(vColor.rgb * vColor.a * across * along, 0.0);
 }

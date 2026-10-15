@@ -134,18 +134,20 @@ static int regressions(Engine &eng) {
         return probePixels(sprite, t);
     };
     const auto below = capsule(0.04999f), above = capsule(0.05001f), dot = capsule(0);
-    bool continuous = true, energy = true;
-    for (size_t i = 0; i < above.size(); i += 4) continuous &= std::abs(above[i] - below[i]) < 0.001f;
+    float thresholdDelta = 0, pointDelta = 0;
+    double energyError = 0;
+    for (size_t i = 0; i < above.size(); i += 4) thresholdDelta = std::max(thresholdDelta, std::abs(above[i] - below[i]));
     for (float half : {0.0005f, 0.0011f, 0.05f, 0.1f, 0.5f, 1.f, 2.f}) {
         const auto pixels = capsule(half);
         double sum = 0;
         for (size_t i = 0; i < pixels.size(); i += 4) sum += pixels[i] * 16 / t.w;
         const double expected = std::max(std::sqrt(pi / 2), 2.0 * half);
-        energy &= std::abs(sum / expected - 1) < 0.003;
+        energyError = std::max(energyError, std::abs(sum / expected - 1));
         if (half < 0.002f)
-            for (size_t i = 0; i < pixels.size(); i += 4) continuous &= std::abs(pixels[i] - dot[i]) < 0.002f;
+            for (size_t i = 0; i < pixels.size(); i += 4) pointDelta = std::max(pointDelta, std::abs(pixels[i] - dot[i]));
     }
-    check(continuous && energy, "sprite point limit and segment continuity preserve energy", "GPU profile quadrature; 0, 0.0005, 0.0011, 0.05, 0.1, 0.5, 1, 2 half-lengths");
+    check(thresholdDelta < 0.001f && pointDelta < 0.002f && energyError < 0.003, "sprite point limit and segment continuity preserve energy",
+          "threshold delta " + std::to_string(thresholdDelta) + ", point delta " + std::to_string(pointDelta) + ", energy error " + std::to_string(energyError));
     glDeleteProgram(sprite.id);
     t.free();
 
