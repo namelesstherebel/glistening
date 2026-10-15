@@ -39,45 +39,6 @@ static void check(bool ok, const std::string &what) {
     failures += !ok;
 }
 
-#ifdef _WIN32
-// ConPTY consumes kitty images, so check the footer's position in its VT repaint.
-static bool resizedHud(const std::string &out) {
-    int row = 1, col = 1;
-    std::string footer(16, ' ');
-    for (size_t i = 0; i < out.size(); i++) {
-        const unsigned char c = out[i];
-        if (c == '\x1b' && i + 1 < out.size() && out[i + 1] == '[') {
-            size_t end = i + 2;
-            while (end < out.size() && !(out[end] >= 0x40 && out[end] <= 0x7e)) end++;
-            if (end == out.size()) break;
-            int a = 1, b = 1;
-            sscanf(out.c_str() + i + 2, "%d;%d", &a, &b);
-            a = a ? a : 1, b = b ? b : 1;
-            switch (out[end]) {
-                case 'H': case 'f': row = a, col = b; break;
-                case 'G': col = a; break;
-                case 'd': row = a; break;
-                case 'A': row -= a; break;
-                case 'B': row += a; break;
-                case 'C': col += a; break;
-                case 'D': col -= a; break;
-                case 'E': row += a, col = 1; break;
-                case 'F': row -= a, col = 1; break;
-            }
-            i = end;
-        } else if (c == '\r') col = 1;
-        else if (c == '\n') row++;
-        else if (c == '\b') col--;
-        else if (c >= 0x20 && c != 0x7f && (c & 0xc0) != 0x80) {
-            if (row == 30 && col >= 83 && col <= 98) footer[col - 83] = char(c);
-            if (footer == "tab menu  ? help") return true;
-            col++;
-        }
-    }
-    return false;
-}
-#endif
-
 // Runs the command with VIZ_OUTPUT=mode, resizes, sends "q"; returns its exit
 // code (-1: still running after 60 s, killed), seconds since q, and everything it wrote.
 static int run(const std::string &exe, const std::string &mode, std::string &out, double &secs);
@@ -94,13 +55,10 @@ int main(int argc, char **argv) {
     check(code >= 0 && secs < 10, "quits on the q key before the 18.5 s test track can end");
 #ifdef _WIN32
     // ConPTY re-renders the screen and swallows APC (kitty) sequences: only the text survives.
-    const bool resized = resizedHud(out);
-    check(resized, "renders the footer at the resized 100x30 dimensions");
-    if (!resized && mode == "kitty") {
-        printf("ConPTY output (first 8192 bytes, hex): ");
-        for (unsigned char c : out.substr(0, 8192)) printf("%02x", c);
-        printf("\n");
-    }
+    // At default 1/2 quality, Windows estimates 10x20 pixels per cell for kitty;
+    // half blocks render at 2x4 pixels per cell. Both sizes prove the child saw 100x30.
+    const std::string dimensions = mode == "blocks" ? "at 200x120, half blocks" : "at 500x300, kitty graphics";
+    check(out.find(dimensions) != std::string::npos, "renders at the resized 100x30 dimensions");
     if (mode == "blocks") check(out.find("\xe2\x96\x80") != std::string::npos, "draws half-block frames");
 #else
     check(out.find("\x1b[?1049h") != std::string::npos, "enters the alternate screen");
