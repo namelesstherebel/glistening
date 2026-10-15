@@ -1,0 +1,25 @@
+platform/audio_wasapi.cpp
+  s_dd831eebbc0b47::t_e455c865762fb3 165,186-193,264,281-285
+platform/posix.cpp
+  s_dd831eebbc0b47::t_98566befbd9868 107
+tests/ptysmoke.cpp
+  s_dd831eebbc0b47::t_745160c416cf27 177-178
+viz.cpp
+  s_dd831eebbc0b47::t_28866d1ed2e602 769
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "3127e010d045ffb5a00752e7237f872b8bca88f4",
+  "prompts": {},
+  "sessions": {
+    "s_dd831eebbc0b47": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a13c64-28bf-7be1-bd8e-18b1f697fc9d",
+        "model": "gpt-6.1-sol"
+      },
+      "human_author": "namelesstherebel <126630357+namelesstherebel@users.noreply.github.com>"
+    }
+  }
+}
