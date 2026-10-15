@@ -1,0 +1,21 @@
+platform/windows.cpp
+  s_ba27988629e039::t_5ad8f3d709e815 13,54-55
+tests/ptysmoke.cpp
+  s_ba27988629e039::t_818d661c44a006 15,51-60,65-68,70,91-92
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "93cb1490d11665eefb730eae99aed2068a283ba0",
+  "prompts": {},
+  "sessions": {
+    "s_ba27988629e039": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a13ab1-2c3e-7532-82a9-047744bb024e",
+        "model": "gpt-6.1-sol"
+      },
+      "human_author": "namelesstherebel <126630357+namelesstherebel@users.noreply.github.com>"
+    }
+  }
+}
