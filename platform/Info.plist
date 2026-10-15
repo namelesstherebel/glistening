@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<!-- Embedded in the macOS executable (__TEXT,__info_plist): macOS shows the
+     usage string when asking the user to allow system audio capture. -->
+<plist version="1.0">
+<dict>
+	<key>CFBundleIdentifier</key>
+	<string>io.github.namelesstherebel.glistening</string>
+	<key>CFBundleName</key>
+	<string>gListening</string>
+	<key>CFBundleDisplayName</key>
+	<string>gListening</string>
+	<key>NSAudioCaptureUsageDescription</key>
+	<string>gListening draws visuals from the audio your Mac is playing. The sound is analysed live and never recorded or sent anywhere.</string>
+</dict>
+</plist>

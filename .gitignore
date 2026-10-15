@@ -9,3 +9,7 @@
 /tests/test
 /tests/render
 /docs/frames/
+
+/prebuilt/
+/artifacts/
+/tests/smoke.ppm
