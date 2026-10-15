@@ -61,14 +61,12 @@ int main(int argc, char **argv) {
         printf("FAIL  render gate: no GL (%s)\n\nRENDER GATE FAILED (no GL)\n", err.c_str());
         return 1;
     }
-    {
-        // Apple's software renderer is far too slow at full size for CI; scale automated assertion runs only.
-        const bool automated = sheets.empty() && transA.empty() && !benchMode;
-        const int reqW = W, reqH = H;
-        const bool soft = gpu.renderer.find("Apple Software Renderer") != std::string::npos;
-        if (soft && automated) W = std::max(1, int(W * 0.3)), H = std::max(1, int(H * 0.3));
-        printf("render gate on %s: requested %dx%d, effective %dx%d\n", gpu.renderer.c_str(), reqW, reqH, W, H);
-    }
+    // Apple's software renderer is far too slow at full size for CI; scale assertion runs only.
+    const int requestedW = W, requestedH = H;
+    const bool softwareAssertions = sheets.empty() && transA.empty() && !benchMode &&
+        gpu.renderer.find("Apple Software Renderer") != std::string::npos;
+    if (softwareAssertions) W = std::max(1, int(W * 0.3)), H = std::max(1, int(H * 0.3));
+    printf("render gate on %s: requested %dx%d, effective %dx%d\n", gpu.renderer.c_str(), requestedW, requestedH, W, H);
     Engine eng;
     err = eng.load(kShaders);
     check(err.empty(), "all shaders compile", err.empty() ? "ok" : err);
@@ -137,6 +135,13 @@ int main(int argc, char **argv) {
     for (size_t si = 0; si < eng.scenes.size(); si++) {
         const SceneDef &sd = eng.scenes[si];
         if (!only.empty() && int(si) != eng.find(only)) continue;  // ids, names, any case
+        if (softwareAssertions) {
+            // Ink advects a feedback texture: coarse grids damp its measured motion.
+            // Keep the requested grid for this inexpensive scene and preserve its assertions.
+            const int sceneW = sd.id == "ink" ? requestedW : W, sceneH = sd.id == "ink" ? requestedH : H;
+            if (!eng.resize(sceneW, sceneH)) return printf("FAIL  %s render targets at %dx%d\n", sd.id.c_str(), sceneW, sceneH), 1;
+            printf("%s render targets: %dx%d\n", sd.id.c_str(), sceneW, sceneH);
+        }
         std::mt19937 rng(1234 + si);
         eng.show(int(si), makeVariant(sd.palettes, palette == "first" ? sd.palettes[0] : palette, nullptr, rng), 0, 0);
         eng.exposure = 1, eng.meanLuma = 0;
