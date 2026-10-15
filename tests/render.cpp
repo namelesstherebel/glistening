@@ -31,13 +31,17 @@ static void ppm(const std::string &path, const std::vector<unsigned char> &rgb, 
     fclose(f);
 }
 
+/** Run scene assertion gates or the requested benchmark, transition, and image-export modes. */
 int main(int argc, char **argv) {
+    setvbuf(stdout, nullptr, _IOLBF, 4096);  // line-buffered so progress shows before a hang
     int W = 616, H = 314;
+    bool benchMode = false;
     std::string sheets, only, palette = "auto";
     for (int i = 1; i < argc; i++) {
         if (!strcmp(argv[i], "--sheets") && i + 1 < argc) sheets = argv[++i];
         else if (!strcmp(argv[i], "--scene") && i + 1 < argc) only = argv[++i];
         else if (!strcmp(argv[i], "--palette") && i + 1 < argc) palette = argv[++i];
+        else if (!strcmp(argv[i], "--bench")) benchMode = true;
         else if (!strcmp(argv[i], "--size") && i + 1 < argc) sscanf(argv[++i], "%dx%d", &W, &H);
         else if (!strcmp(argv[i], "--song") && i + 1 < argc) {  // write the fixture track as f32le stereo
             hatPrev = 0;
@@ -58,7 +62,12 @@ int main(int argc, char **argv) {
         printf("FAIL  render gate: no GL (%s)\n\nRENDER GATE FAILED (no GL)\n", err.c_str());
         return 1;
     }
-    printf("render gate on %s at %dx%d\n", gpu.renderer.c_str(), W, H);
+    // Apple's software renderer is far too slow at full size for CI; scale assertion runs only.
+    const int requestedW = W, requestedH = H;
+    const bool softwareAssertions = sheets.empty() && transA.empty() && !benchMode &&
+        gpu.renderer.find("Apple Software Renderer") != std::string::npos;
+    if (softwareAssertions) W = std::max(1, int(W * 0.3)), H = std::max(1, int(H * 0.3));
+    printf("render gate on %s: requested %dx%d, effective %dx%d\n", gpu.renderer.c_str(), requestedW, requestedH, W, H);
     Engine eng;
     err = eng.load(kShaders);
     check(err.empty(), "all shaders compile", err.empty() ? "ok" : err);
@@ -127,6 +136,13 @@ int main(int argc, char **argv) {
     for (size_t si = 0; si < eng.scenes.size(); si++) {
         const SceneDef &sd = eng.scenes[si];
         if (!only.empty() && int(si) != eng.find(only)) continue;  // ids, names, any case
+        if (softwareAssertions) {
+            // Ink advects a feedback texture: coarse grids damp its measured motion.
+            // Keep the requested grid for this inexpensive scene and preserve its assertions.
+            const int sceneW = sd.id == "ink" ? requestedW : W, sceneH = sd.id == "ink" ? requestedH : H;
+            if (!eng.resize(sceneW, sceneH)) return printf("FAIL  %s render targets at %dx%d\n", sd.id.c_str(), sceneW, sceneH), 1;
+            printf("%s render targets: %dx%d\n", sd.id.c_str(), sceneW, sceneH);
+        }
         std::mt19937 rng(1234 + si);
         eng.show(int(si), makeVariant(sd.palettes, palette == "first" ? sd.palettes[0] : palette, nullptr, rng), 0, 0);
         eng.exposure = 1, eng.meanLuma = 0;

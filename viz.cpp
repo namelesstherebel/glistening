@@ -224,11 +224,12 @@ static const char *backends() {
 #endif
 }
 
-// --self-test: what a packaged binary needs, on synthetic input but real
-// backends: the GL context and every embedded scene, the device-audio
-// conversion path into the analysis, and the terminal encoders. No audio
-// device or terminal is touched, so it runs on CI hosts; no GL is a failure.
+/** Verify packaged rendering, audio conversion/analysis, and terminal encoding on synthetic input.
+ * Uses real GL and every embedded scene without touching an audio device or terminal.
+ * Missing GL or a failed check returns a nonzero status.
+ */
 static int selfTest() {
+    setvbuf(stdout, nullptr, _IOLBF, 4096);
     int failures = 0;
     auto check = [&](bool ok, const std::string &what, const std::string &detail) {
         printf("%s  %s  — %s\n", ok ? "PASS" : "FAIL", what.c_str(), detail.c_str());
@@ -277,11 +278,13 @@ static int selfTest() {
     }
 
     {  // GL: every embedded scene compiles, renders, moves and stays finite on the track's drop.
-        const int W = 320, H = 180;
+        int W = 320, H = 180;
         Gpu gpu;
         const std::string gerr = gpu.init(W, H);
         check(gerr.empty(), "OpenGL 3.3 core context", gerr.empty() ? gpu.renderer : gerr);
         if (gerr.empty()) {
+            // Match the render gate's software-only size; keep every scene and assertion.
+            if (gpu.renderer.find("Apple Software Renderer") != std::string::npos) W = 96, H = 54;
             Engine eng;
             const std::string serr = eng.load(kShaders);
             check(serr.empty() && eng.ready(), "embedded shaders compile", serr.empty() ? "ok" : serr.substr(0, serr.find('\n')));

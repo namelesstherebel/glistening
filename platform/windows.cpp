@@ -297,14 +297,23 @@ static bool spawn(Process::Impl &p, const std::wstring &app, std::wstring cmdlin
     return true;
 }
 
-// Executables only: CreateProcess runs .bat/.cmd through cmd.exe, which
-// re-parses the arguments (a file name could inject commands).
+/** Start an executable without shell argument re-parsing; reject explicitly named scripts.
+ * Extensionless commands may bypass PATH shims by resolving their .exe counterpart.
+ */
 bool Process::start(const std::vector<std::string> &argv, bool blocking) {
     if (argv.empty() || p_->proc) return false;
-    const std::string path = findProgram(argv[0]);
-    std::string ext = path.size() > 4 ? path.substr(path.size() - 4) : "";
-    for (char &c : ext) c = char(tolower((unsigned char)c));
-    if (ext != ".exe" && ext != ".com") return false;
+    /** Check the resolved executable extension before passing a program to CreateProcess. */
+    auto runnable = [](const std::string &p) {
+        std::string ext = p.size() > 4 ? p.substr(p.size() - 4) : "";
+        for (char &c : ext) c = char(tolower((unsigned char)c));
+        return ext == ".exe" || ext == ".com";
+    };
+    std::string path = findProgram(argv[0]);
+    // A .bat/.cmd shim earlier on PATH must not hide the executable later on it.
+    // Only for a bare name: an explicit "tool.cmd" never becomes "tool.cmd.exe".
+    const size_t base = argv[0].find_last_of("\\/:") + 1;
+    if (!runnable(path) && argv[0].find('.', base) == std::string::npos) path = findProgram(argv[0] + ".exe");
+    if (!runnable(path)) return false;
     std::wstring cmd = quoteArg(wide(path));
     for (size_t i = 1; i < argv.size(); i++) cmd += L" " + quoteArg(wide(argv[i]));
     return spawn(*p_, wide(path), cmd, blocking);

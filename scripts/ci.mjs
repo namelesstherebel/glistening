@@ -3,8 +3,9 @@ import { cpSync, mkdirSync, readFileSync, statSync } from 'node:fs';
 import { resolve, join } from 'node:path';
 
 const root = process.cwd();
-function check(command, args, marker) {
-  const result = spawnSync(command, args, { encoding: 'utf8', maxBuffer: 16 * 1024 * 1024, timeout: 1200000 });
+/** Run one CI command within its budget, requiring success and an optional output marker. */
+function check(command, args, marker, timeout = 1200000) {
+  const result = spawnSync(command, args, { encoding: 'utf8', maxBuffer: 16 * 1024 * 1024, timeout });
   process.stdout.write(result.stdout || '');
   process.stderr.write(result.stderr || '');
   if (result.error) throw result.error;
@@ -14,7 +15,9 @@ function check(command, args, marker) {
   return output;
 }
 check(process.execPath, ['--test', '--test-reporter=tap', 'tests/package.test.cjs'], '# fail 0');
-const tests = check('ctest', ['--test-dir', 'build', '-C', 'Release', '-V', '--output-on-failure', '--no-tests=error'], 'RENDER GATE PASS');
+// The suite aggregates all scene, self-test, dump and terminal checks on CPU-only macOS VMs.
+// Keep each test bounded at 17.5 minutes, with 30 minutes for their combined work.
+const tests = check('ctest', ['--test-dir', 'build', '-C', 'Release', '-V', '--output-on-failure', '--timeout', '1050', '--no-tests=error'], 'RENDER GATE PASS', 1800000);
 if (/\*\*\*Skipped|Not Run|SKIP:/i.test(tests)) throw new Error('Required native tests were skipped');
 const binary = resolve(process.platform === 'win32' ? 'build/Release/glistening.exe' : 'build/glistening');
 check(binary, ['--version']);

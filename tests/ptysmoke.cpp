@@ -3,7 +3,9 @@
 // 100x30 after 1 s, presses q after 2.5 s, and checks it drew frames, followed
 // the resize, quit on the key, and gave the terminal back.
 //   ptysmoke GLISTENING blocks|kitty
-// No audio device, display or real terminal needed; GL is (as for glistening).
+// Quasicrystal keeps this a terminal protocol test on CPU-only GL hosts; the
+// render gate checks every scene separately. No audio device, display or real
+// terminal needed; GL is (as for glistening).
 #include <cerrno>
 #include <chrono>
 #include <csignal>
@@ -41,6 +43,7 @@ static void check(bool ok, const std::string &what) {
 // code (-1: still running after 60 s, killed) and everything it wrote.
 static int run(const std::string &exe, const std::string &mode, std::string &out, double &secs);
 
+/** Verify a terminal output protocol, resize handling, quit input, and screen restoration. */
 int main(int argc, char **argv) {
     if (argc != 3 || (strcmp(argv[2], "blocks") && strcmp(argv[2], "kitty"))) return fprintf(stderr, "usage: ptysmoke GLISTENING blocks|kitty\n"), 2;
     const std::string mode = argv[2];
@@ -49,7 +52,7 @@ int main(int argc, char **argv) {
     const int code = run(argv[1], mode, out, secs);
     printf("glistening exited %d after %.1f s, %zu bytes of output\n", code, secs, out.size());
     check(code == 0, "exits cleanly");
-    check(code >= 0 && secs < 30, "quits on the q key (well before --seconds 40)");
+    check(code >= 0 && secs < 10, "quits on the q key before the 18.5 s test track can end");
 #ifdef _WIN32
     // ConPTY re-renders the screen and swallows APC (kitty) sequences: only the text survives.
     if (mode == "blocks") check(out.find("\xe2\x96\x80") != std::string::npos, "draws half-block frames");
@@ -76,6 +79,7 @@ static std::wstring wide(const std::string &s) {
     return w;
 }
 
+/** Launch the terminal fixture, resize it, send quit, and capture output through child exit. */
 static int run(const std::string &exe, const std::string &mode, std::string &out, double &secs) {
     HANDLE inR, inW, outR, outW;
     SECURITY_ATTRIBUTES sa{sizeof sa, nullptr, FALSE};
@@ -99,7 +103,7 @@ static int run(const std::string &exe, const std::string &mode, std::string &out
     si.lpAttributeList = (LPPROC_THREAD_ATTRIBUTE_LIST)HeapAlloc(GetProcessHeap(), 0, size);
     InitializeProcThreadAttributeList(si.lpAttributeList, 1, 0, &size);
     UpdateProcThreadAttribute(si.lpAttributeList, 0, PROC_THREAD_ATTRIBUTE_PSEUDOCONSOLE, pc, sizeof pc, nullptr, nullptr);
-    std::wstring cmd = L"\"" + wide(exe) + L"\" --test-signal --seconds 40 --no-director";
+    std::wstring cmd = L"\"" + wide(exe) + L"\" --test-signal --seconds 40 --no-director --scene quasicrystal";
     PROCESS_INFORMATION pi{};
     const auto t0 = Clock::now();
     if (!CreateProcessW(nullptr, &cmd[0], nullptr, nullptr, FALSE, EXTENDED_STARTUPINFO_PRESENT, nullptr, nullptr, &si.StartupInfo, &pi))
@@ -107,8 +111,8 @@ static int run(const std::string &exe, const std::string &mode, std::string &out
     Sleep(1000);
     ResizePseudoConsole(pc, COORD{100, 30});
     Sleep(1500);
-    DWORD w;
-    WriteFile(inW, "q", 1, &w, nullptr);
+    DWORD w = 0;
+    const bool sent = WriteFile(inW, "q", 1, &w, nullptr) && w == 1;
     DWORD code = 0;
     const bool done = WaitForSingleObject(pi.hProcess, 60000) == WAIT_OBJECT_0;
     secs = std::chrono::duration<double>(Clock::now() - t0).count();
@@ -119,9 +123,10 @@ static int run(const std::string &exe, const std::string &mode, std::string &out
     reader.join();
     CloseHandle(inW), CloseHandle(outR);
     DeleteProcThreadAttributeList(si.lpAttributeList);
-    return done ? int(code) : -1;
+    return !sent ? -3 : done ? int(code) : -1;
 }
 #else
+/** Launch the terminal fixture, resize it, send quit, and capture output through child exit. */
 static int run(const std::string &exe, const std::string &mode, std::string &out, double &secs) {
     winsize ws{24, 80, 800, 480};
     int fd;
@@ -132,7 +137,7 @@ static int run(const std::string &exe, const std::string &mode, std::string &out
         setenv("VIZ_OUTPUT", mode.c_str(), 1);
         setenv("VIZ_MEDIUM", "direct", 1);
         setenv("TERM", "xterm-256color", 1);
-        execl(exe.c_str(), exe.c_str(), "--test-signal", "--seconds", "40", "--no-director", (char *)nullptr);
+        execl(exe.c_str(), exe.c_str(), "--test-signal", "--seconds", "40", "--no-director", "--scene", "quasicrystal", (char *)nullptr);
         _exit(127);
     }
     bool sent = false, grown = false;
@@ -164,12 +169,12 @@ static int run(const std::string &exe, const std::string &mode, std::string &out
             for (ssize_t n; poll(&p, 1, 100) > 0 && (n = read(fd, b, sizeof b)) > 0;) out.append(b, size_t(n));
             secs = std::chrono::duration<double>(Clock::now() - t0).count();
             close(fd);
-            return WIFEXITED(status) ? WEXITSTATUS(status) : 128 + WTERMSIG(status);
+            return !sent ? -3 : WIFEXITED(status) ? WEXITSTATUS(status) : 128 + WTERMSIG(status);
         }
     }
     waitpid(pid, &status, 0);
     secs = std::chrono::duration<double>(Clock::now() - t0).count();
     close(fd);
-    return WIFEXITED(status) ? WEXITSTATUS(status) : 128 + WTERMSIG(status);
+    return !sent ? -3 : WIFEXITED(status) ? WEXITSTATUS(status) : 128 + WTERMSIG(status);
 }
 #endif
