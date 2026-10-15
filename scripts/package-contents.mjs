@@ -30,13 +30,13 @@ export function validateBundle(root) {
     const actual = createHash('sha256').update(data).digest('hex');
     if (hashes[name] !== actual) throw new Error(`Bundle checksum mismatch: ${name}`);
   }
-  const allowed = new Set(['package.json', 'LICENSE', 'README.md', 'prebuilt/SHA256SUMS.json', ...expected.map(name => `prebuilt/${name}`)]);
+  const allowed = new Set(['package.json', 'LICENSE', 'README.md', 'bin/glistening.cjs', 'bin/setup.cjs', 'prebuilt/SHA256SUMS.json', ...expected.map(name => `prebuilt/${name}`)]);
   function walk(dir) {
     for (const item of readdirSync(dir, { withFileTypes: true })) {
       const file = join(dir, item.name);
       const name = relative(root, file).replaceAll('\\', '/');
       if (item.isDirectory()) walk(file);
-      else if (!item.isFile() || (!allowed.has(name) && !/^bin\/[\w.-]+\.cjs$/.test(name))) throw new Error(`Unexpected npm file: ${name}`);
+      else if (!item.isFile() || !allowed.has(name)) throw new Error(`Unexpected npm file: ${name}`);
     }
   }
   walk(root);
