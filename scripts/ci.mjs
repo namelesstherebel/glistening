@@ -3,6 +3,7 @@ import { cpSync, mkdirSync, readFileSync, statSync } from 'node:fs';
 import { resolve, join } from 'node:path';
 
 const root = process.cwd();
+/** Run one CI command within its budget, requiring success and an optional output marker. */
 function check(command, args, marker, timeout = 1200000) {
   const result = spawnSync(command, args, { encoding: 'utf8', maxBuffer: 16 * 1024 * 1024, timeout });
   process.stdout.write(result.stdout || '');

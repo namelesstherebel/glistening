@@ -15,6 +15,7 @@ const native = join(stage, 'prebuilt', target, filename);
 mkdirSync(dirname(native), { recursive: true });
 cpSync(join('artifacts', target, filename), native);
 writeFileSync(join(stage, 'package.json'), JSON.stringify({ ...pkg, scripts: undefined }, null, 2));
+/** Execute an installed-package smoke command in its working directory and return stdout. */
 function run(command, args, cwd = root) {
   const result = spawnSync(command, args, { cwd, encoding: 'utf8', timeout: 300000, maxBuffer: 4 * 1024 * 1024 });
   if (result.error) throw result.error;

@@ -224,10 +224,10 @@ static const char *backends() {
 #endif
 }
 
-// --self-test: what a packaged binary needs, on synthetic input but real
-// backends: the GL context and every embedded scene, the device-audio
-// conversion path into the analysis, and the terminal encoders. No audio
-// device or terminal is touched, so it runs on CI hosts; no GL is a failure.
+/** Verify packaged rendering, audio conversion/analysis, and terminal encoding on synthetic input.
+ * Uses real GL and every embedded scene without touching an audio device or terminal.
+ * Missing GL or a failed check returns a nonzero status.
+ */
 static int selfTest() {
     setvbuf(stdout, nullptr, _IOLBF, 4096);
     int failures = 0;

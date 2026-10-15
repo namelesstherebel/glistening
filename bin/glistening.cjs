@@ -4,6 +4,7 @@ const path = require('node:path');
 const fs = require('node:fs');
 const { spawn } = require('node:child_process');
 
+/** Resolve a supported native bundle path, rejecting unsupported platform/architecture pairs. */
 function binaryPath(root, platform = process.platform, arch = process.arch) {
   const target = `${platform}-${arch}`;
   if (!['linux-x64', 'darwin-arm64', 'darwin-x64', 'win32-x64'].includes(target)) {
@@ -12,6 +13,7 @@ function binaryPath(root, platform = process.platform, arch = process.arch) {
   return path.join(root, 'prebuilt', target, platform === 'win32' ? 'glistening.exe' : 'glistening');
 }
 
+/** Run setup or await the native process, relaying POSIX quit signals until child cleanup finishes. */
 async function run(root, args) {
   if (args[0] === 'setup') return require('./setup.cjs').setup(args.slice(1));
   const binary = binaryPath(root);

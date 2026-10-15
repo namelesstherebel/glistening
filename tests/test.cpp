@@ -112,6 +112,7 @@ static void testRealistic(double bpm) {
     beatGates(name, r, bpm, 8, 30);
 }
 
+/** Check synthetic-track analysis, invalid input handling, AGC, and the realtime CPU budget. */
 static void testAnalysis() {
     testRealistic(100);
     testRealistic(126);

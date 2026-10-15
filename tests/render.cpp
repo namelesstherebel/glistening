@@ -31,6 +31,7 @@ static void ppm(const std::string &path, const std::vector<unsigned char> &rgb, 
     fclose(f);
 }
 
+/** Run scene assertion gates or the requested benchmark, transition, and image-export modes. */
 int main(int argc, char **argv) {
     setvbuf(stdout, nullptr, _IOLBF, 4096);  // line-buffered so progress shows before a hang
     int W = 616, H = 314;
