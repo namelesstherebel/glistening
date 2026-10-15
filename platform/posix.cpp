@@ -106,6 +106,9 @@ std::string enterRaw() {
     raw.c_lflag &= ~(ICANON | ECHO);
     raw.c_cc[VMIN] = 0, raw.c_cc[VTIME] = 0;
     raw.c_cc[VQUIT] = raw.c_cc[VSUSP] = _POSIX_VDISABLE;  // preserve Ctrl-C; other signal keys become ordinary input
+#ifdef VDSUSP
+    raw.c_cc[VDSUSP] = _POSIX_VDISABLE;  // macOS delayed suspend (Ctrl-Y) also raises SIGTSTP
+#endif
     for (int sig : {SIGINT, SIGTERM, SIGHUP}) signal(sig, startupSignal);
     // Publish restoration state before changing the terminal: a startup signal
     // during tcsetattr must restore even if the change already took effect.
