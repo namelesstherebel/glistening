@@ -1,0 +1,21 @@
+README.md
+  s_ba27988629e039::t_8f73229cdd45cb 164
+scripts/package-contents.mjs
+  s_ba27988629e039::t_9f381e218147be 33,39
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "5c7eab36ae5b3cea613dd215ea9ed7f90ebd7bc5",
+  "prompts": {},
+  "sessions": {
+    "s_ba27988629e039": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a13ab1-2c3e-7532-82a9-047744bb024e",
+        "model": "gpt-6.1-sol"
+      },
+      "human_author": "namelesstherebel <126630357+namelesstherebel@users.noreply.github.com>"
+    }
+  }
+}
