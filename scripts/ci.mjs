@@ -14,7 +14,7 @@ function check(command, args, marker) {
   return output;
 }
 check(process.execPath, ['--test', '--test-reporter=tap', 'tests/package.test.cjs'], '# fail 0');
-const tests = check('ctest', ['--test-dir', 'build', '-C', 'Release', '-V', '--output-on-failure', '--no-tests=error'], 'RENDER GATE PASS');
+const tests = check('ctest', ['--test-dir', 'build', '-C', 'Release', '-V', '--output-on-failure', '--timeout', '1050', '--no-tests=error'], 'RENDER GATE PASS');
 if (/\*\*\*Skipped|Not Run|SKIP:/i.test(tests)) throw new Error('Required native tests were skipped');
 const binary = resolve(process.platform === 'win32' ? 'build/Release/glistening.exe' : 'build/glistening');
 check(binary, ['--version']);

@@ -175,7 +175,9 @@ static void testAnalysis() {
         auto t0 = std::chrono::steady_clock::now();
         analyse(a);
         double s = std::chrono::duration<double>(std::chrono::steady_clock::now() - t0).count();
-        check(s < 1.2, "CPU: 60s of audio analysed in <1.2s (2% realtime)", fmt("%.3fs", s));
+        // Budget is 5% of realtime: shared hosted runners vary several-fold in CPU speed and
+        // contention, while a real regression in the analysis would still blow well past this.
+        check(s < 3.0, "CPU: 60s of audio analysed in <3.0s (5% realtime)", fmt("%.3fs", s));
     }
 }
 

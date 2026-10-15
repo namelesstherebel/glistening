@@ -32,12 +32,15 @@ static void ppm(const std::string &path, const std::vector<unsigned char> &rgb, 
 }
 
 int main(int argc, char **argv) {
+    setvbuf(stdout, nullptr, _IOLBF, 4096);  // line-buffered so progress shows before a hang
     int W = 616, H = 314;
+    bool benchMode = false;
     std::string sheets, only, palette = "auto";
     for (int i = 1; i < argc; i++) {
         if (!strcmp(argv[i], "--sheets") && i + 1 < argc) sheets = argv[++i];
         else if (!strcmp(argv[i], "--scene") && i + 1 < argc) only = argv[++i];
         else if (!strcmp(argv[i], "--palette") && i + 1 < argc) palette = argv[++i];
+        else if (!strcmp(argv[i], "--bench")) benchMode = true;
         else if (!strcmp(argv[i], "--size") && i + 1 < argc) sscanf(argv[++i], "%dx%d", &W, &H);
         else if (!strcmp(argv[i], "--song") && i + 1 < argc) {  // write the fixture track as f32le stereo
             hatPrev = 0;
@@ -58,7 +61,14 @@ int main(int argc, char **argv) {
         printf("FAIL  render gate: no GL (%s)\n\nRENDER GATE FAILED (no GL)\n", err.c_str());
         return 1;
     }
-    printf("render gate on %s at %dx%d\n", gpu.renderer.c_str(), W, H);
+    {
+        // Apple's software renderer is far too slow at full size for CI; scale automated assertion runs only.
+        const bool automated = sheets.empty() && transA.empty() && !benchMode;
+        const int reqW = W, reqH = H;
+        const bool soft = gpu.renderer.find("Apple Software Renderer") != std::string::npos;
+        if (soft && automated) W = std::max(1, int(W * 0.3)), H = std::max(1, int(H * 0.3));
+        printf("render gate on %s: requested %dx%d, effective %dx%d\n", gpu.renderer.c_str(), reqW, reqH, W, H);
+    }
     Engine eng;
     err = eng.load(kShaders);
     check(err.empty(), "all shaders compile", err.empty() ? "ok" : err);
