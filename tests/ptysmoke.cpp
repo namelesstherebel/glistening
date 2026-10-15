@@ -1,6 +1,6 @@
 // Terminal smoke test: runs glistening on the built-in test track inside a
 // pseudo-terminal (forkpty, or ConPTY on Windows) at 80x24, resizes it to
-// 100x30 after 1 s, presses q after 2.5 s, and checks it drew frames, followed
+// 100x30 after 1 s, presses q once ready (at least 2.5 s), and checks it drew frames, followed
 // the resize, quit on the key, and gave the terminal back.
 //   ptysmoke GLISTENING blocks|kitty
 // Quasicrystal keeps this a terminal protocol test on CPU-only GL hosts; the
@@ -40,7 +40,7 @@ static void check(bool ok, const std::string &what) {
 }
 
 // Runs the command with VIZ_OUTPUT=mode, resizes, sends "q"; returns its exit
-// code (-1: still running after 60 s, killed) and everything it wrote.
+// code (-1: still running after 60 s, killed), seconds since q, and everything it wrote.
 static int run(const std::string &exe, const std::string &mode, std::string &out, double &secs);
 
 /** Verify a terminal output protocol, resize handling, quit input, and screen restoration. */
@@ -50,7 +50,7 @@ int main(int argc, char **argv) {
     std::string out;
     double secs = 0;
     const int code = run(argv[1], mode, out, secs);
-    printf("glistening exited %d after %.1f s, %zu bytes of output\n", code, secs, out.size());
+    printf("glistening exited %d %.1f s after q, %zu bytes of output\n", code, secs, out.size());
     check(code == 0, "exits cleanly");
     check(code >= 0 && secs < 10, "quits on the q key before the 18.5 s test track can end");
 #ifdef _WIN32
@@ -105,17 +105,17 @@ static int run(const std::string &exe, const std::string &mode, std::string &out
     UpdateProcThreadAttribute(si.lpAttributeList, 0, PROC_THREAD_ATTRIBUTE_PSEUDOCONSOLE, pc, sizeof pc, nullptr, nullptr);
     std::wstring cmd = L"\"" + wide(exe) + L"\" --test-signal --seconds 40 --no-director --scene quasicrystal";
     PROCESS_INFORMATION pi{};
-    const auto t0 = Clock::now();
     if (!CreateProcessW(nullptr, &cmd[0], nullptr, nullptr, FALSE, EXTENDED_STARTUPINFO_PRESENT, nullptr, nullptr, &si.StartupInfo, &pi))
         return fprintf(stderr, "CreateProcess failed: %lu\n", GetLastError()), ClosePseudoConsole(pc), reader.join(), -2;
     Sleep(1000);
     ResizePseudoConsole(pc, COORD{100, 30});
     Sleep(1500);
     DWORD w = 0;
+    const auto quitAt = Clock::now();
     const bool sent = WriteFile(inW, "q", 1, &w, nullptr) && w == 1;
     DWORD code = 0;
     const bool done = WaitForSingleObject(pi.hProcess, 60000) == WAIT_OBJECT_0;
-    secs = std::chrono::duration<double>(Clock::now() - t0).count();
+    secs = std::chrono::duration<double>(Clock::now() - quitAt).count();
     if (!done) TerminateProcess(pi.hProcess, 1);
     GetExitCodeProcess(pi.hProcess, &code);
     CloseHandle(pi.hThread), CloseHandle(pi.hProcess);
@@ -141,6 +141,7 @@ static int run(const std::string &exe, const std::string &mode, std::string &out
         _exit(127);
     }
     bool sent = false, grown = false;
+    auto quitAt = t0;
     int status = 0;
     for (;;) {
         const double t = std::chrono::duration<double>(Clock::now() - t0).count();
@@ -148,7 +149,11 @@ static int run(const std::string &exe, const std::string &mode, std::string &out
             const winsize big{30, 100, 1000, 600};
             grown = ioctl(fd, TIOCSWINSZ, &big) == 0;
         }
-        if (!sent && t > 2.5) sent = write(fd, "q", 1) == 1;
+        // Software GL startup can exceed the quit budget; wait until the app is ready.
+        if (!sent && t > 2.5 && out.find("\x1b[?1049h") != std::string::npos) {
+            quitAt = Clock::now();
+            sent = write(fd, "q", 1) == 1;
+        }
         if (t > 60) {
             kill(pid, SIGKILL), waitpid(pid, &status, 0), secs = t;
             return -1;
@@ -167,13 +172,13 @@ static int run(const std::string &exe, const std::string &mode, std::string &out
         if (waitpid(pid, &status, WNOHANG) == pid) {  // drain what is left, then stop
             char b[65536];
             for (ssize_t n; poll(&p, 1, 100) > 0 && (n = read(fd, b, sizeof b)) > 0;) out.append(b, size_t(n));
-            secs = std::chrono::duration<double>(Clock::now() - t0).count();
+            secs = std::chrono::duration<double>(Clock::now() - quitAt).count();
             close(fd);
             return !sent ? -3 : WIFEXITED(status) ? WEXITSTATUS(status) : 128 + WTERMSIG(status);
         }
     }
     waitpid(pid, &status, 0);
-    secs = std::chrono::duration<double>(Clock::now() - t0).count();
+    secs = std::chrono::duration<double>(Clock::now() - quitAt).count();
     close(fd);
     return !sent ? -3 : WIFEXITED(status) ? WEXITSTATUS(status) : 128 + WTERMSIG(status);
 }
