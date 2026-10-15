@@ -12,6 +12,7 @@
 #include <cstdio>
 #include <cstdlib>
 #include <cstring>
+#include <filesystem>
 #include <string>
 #include <thread>
 
@@ -47,11 +48,26 @@ static int run(const std::string &exe, const std::string &mode, std::string &out
 int main(int argc, char **argv) {
     if (argc != 3 || (strcmp(argv[2], "blocks") && strcmp(argv[2], "kitty"))) return fprintf(stderr, "usage: ptysmoke GLISTENING blocks|kitty\n"), 2;
     const std::string mode = argv[2];
+    const auto work = std::filesystem::temp_directory_path() / ("glistening-pty-" + mode + "-" + std::to_string(Clock::now().time_since_epoch().count()));
+    std::filesystem::create_directory(work);
+#ifdef _WIN32
+    // Roaming can be absent on a fresh profile. The app must create its parents.
+    const auto configHome = work / "new-profile" / "Roaming";
+    SetEnvironmentVariableW(L"APPDATA", configHome.c_str());
+#else
+    const auto configHome = work;
+    setenv("XDG_CONFIG_HOME", configHome.c_str(), 1);
+#endif
     std::string out;
     double secs = 0;
     const int code = run(argv[1], mode, out, secs);
     printf("glistening exited %d %.1f s after q, %zu bytes of output\n", code, secs, out.size());
+    if (code != 0) {
+        const auto diagnostic = out.rfind("glistening:");
+        if (diagnostic != std::string::npos) fprintf(stderr, "%s\n", out.substr(diagnostic, 1000).c_str());
+    }
     check(code == 0, "exits cleanly");
+    check(std::filesystem::is_regular_file(configHome / "glistening" / "config"), "saves settings in isolated profile");
     check(code >= 0 && secs < 10, "quits on the q key before the 18.5 s test track can end");
 #ifdef _WIN32
     // ConPTY re-renders the screen and swallows APC (kitty) sequences: only the text survives.
@@ -72,6 +88,8 @@ int main(int argc, char **argv) {
     const size_t leave = out.rfind("\x1b[?1049l");
     check(leave != std::string::npos && out.find("\x1b[?25h", out.rfind("\x1b[?2026l")) != std::string::npos, "restores the screen and cursor");
 #endif
+    std::error_code cleanup;
+    std::filesystem::remove_all(work, cleanup);
     printf("\n%s (%d failed)\n", failures ? "TERMINAL SMOKE FAILED" : "TERMINAL SMOKE PASS", failures);
     return failures != 0;
 }

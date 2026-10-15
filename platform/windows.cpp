@@ -10,6 +10,7 @@
 #include <algorithm>
 #include <cstdlib>
 #include <cwchar>
+#include <filesystem>
 
 namespace tv::sys {
 
@@ -50,7 +51,8 @@ std::string configDir() {
     if (d.empty()) d = env("USERPROFILE");
     if (d.empty()) d = ".";
     d += "\\glistening";
-    CreateDirectoryW(wide(d).c_str(), nullptr);
+    std::error_code error;
+    std::filesystem::create_directories(wide(d), error);
     return d;
 }
 
