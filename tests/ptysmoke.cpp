@@ -174,7 +174,8 @@ static int run(const std::string &exe, const std::string &mode, std::string &out
         // Software GL startup can exceed the quit budget; wait until the app is ready.
         if (!sent && t > 2.5 && out.find("\x1b[?1049h") != std::string::npos) {
             quitAt = Clock::now();
-            sent = write(fd, "q", 1) == 1;
+            // Ctrl-\ and Ctrl-Z must not bypass cleanup or suspend the raw terminal.
+            sent = write(fd, "\x1c\x1a" "q", 3) == 3;
         }
         if (t > 60) {
             kill(pid, SIGKILL), waitpid(pid, &status, 0), secs = t;

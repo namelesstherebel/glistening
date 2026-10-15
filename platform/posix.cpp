@@ -105,6 +105,7 @@ std::string enterRaw() {
     termios raw = g_tio;
     raw.c_lflag &= ~(ICANON | ECHO);
     raw.c_cc[VMIN] = 0, raw.c_cc[VTIME] = 0;
+    raw.c_cc[VQUIT] = raw.c_cc[VSUSP] = _POSIX_VDISABLE;  // preserve Ctrl-C; other signal keys become ordinary input
     for (int sig : {SIGINT, SIGTERM, SIGHUP}) signal(sig, startupSignal);
     // Publish restoration state before changing the terminal: a startup signal
     // during tcsetattr must restore even if the change already took effect.

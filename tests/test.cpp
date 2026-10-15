@@ -682,6 +682,17 @@ static void testEncoders() {
     for (size_t i = 0; (i = hb.find("H", i)) != std::string::npos; i++) moves += hb[i - 1] >= '0' && hb[i - 1] <= '9';
     check(validUtf8(hb) && blocks == 40 * 12 - 13 && moves == 12 && hb.find("Tunnel") != std::string::npos && hb.find("ember") != std::string::npos,
           "half blocks: one cell per column and row, text replaces cells, valid UTF-8", fmt("%.0f blocks, %.0f row moves", blocks, moves));
+    bool resampled = true;
+    for (int scale = 1; scale <= 4; scale++) {
+        const int W = 7 * 4 / scale, H = 3 * 8 / scale;
+        std::vector<unsigned char> source(size_t(W) * H * 3, 91), sampled;
+        downsample(source, W, H, 7, 6, sampled);
+        resampled &= sampled.size() == 7 * 6 * 3 && std::all_of(sampled.begin(), sampled.end(), [](auto c) { return c == 91; });
+    }
+    std::vector<unsigned char> source = {0, 0, 0, 120, 120, 120, 240, 240, 240}, sampled;
+    downsample(source, 3, 1, 2, 1, sampled);
+    check(resampled && sampled == std::vector<unsigned char>({40, 40, 40, 200, 200, 200}),
+          "block output resamples every quality to a fixed grid and area-averages fractional footprints");
     Screen a(40, 12), b(40, 12);
     a.text(1, 1, "hello", 0xff0000);
     b.text(1, 1, "help!", 0xff0000);

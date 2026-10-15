@@ -3,6 +3,7 @@
 #pragma once
 #include "tui.hpp"
 
+#include <cmath>
 #include <string>
 #include <vector>
 
@@ -127,16 +128,24 @@ inline std::string halfBlocks(const unsigned char *rgb, const Screen &ui) {
     return o;
 }
 
-// Box-average an image down by 2 in each direction (half-block mode renders at 2x).
-inline void halve(const std::vector<unsigned char> &in, int w, int h, std::vector<unsigned char> &out) {
-    const int W = w / 2, H = h / 2;
+// Area-average into the fixed half-block grid at any render quality.
+inline void downsample(const std::vector<unsigned char> &in, int w, int h, int W, int H, std::vector<unsigned char> &out) {
     out.resize(size_t(W) * H * 3);
     for (int y = 0; y < H; y++)
-        for (int x = 0; x < W; x++)
+        for (int x = 0; x < W; x++) {
+            const double left = double(x) * w / W, right = double(x + 1) * w / W;
+            const double top = double(y) * h / H, bottom = double(y + 1) * h / H;
             for (int k = 0; k < 3; k++) {
-                auto at = [&](int xx, int yy) { return in[(size_t(yy) * w + xx) * 3 + k]; };
-                out[(size_t(y) * W + x) * 3 + k] = (at(2 * x, 2 * y) + at(2 * x + 1, 2 * y) + at(2 * x, 2 * y + 1) + at(2 * x + 1, 2 * y + 1) + 2) / 4;
+                double sum = 0;
+                for (int yy = int(std::floor(top)); yy < int(std::ceil(bottom)); yy++)
+                    for (int xx = int(std::floor(left)); xx < int(std::ceil(right)); xx++) {
+                        const double area = (std::min(right, xx + 1.0) - std::max(left, double(xx))) *
+                                            (std::min(bottom, yy + 1.0) - std::max(top, double(yy)));
+                        sum += in[(size_t(yy) * w + xx) * 3 + k] * area;
+                    }
+                out[(size_t(y) * W + x) * 3 + k] = static_cast<unsigned char>(std::clamp(std::lround(sum / ((right - left) * (bottom - top))), 0L, 255L));
             }
+        }
 }
 
 }  // namespace tv

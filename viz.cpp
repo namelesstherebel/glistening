@@ -523,7 +523,7 @@ int main(int argc, char **argv) {
     Term term = measure();
     auto renderSize = [&](int &w, int &h) {
         if (dump) w = o.w, h = o.h;
-        else if (!kitty) w = term.cols * 2, h = term.rows * 4;  // half blocks, 2x supersampled
+        else if (!kitty) w = term.cols * 4 / s.scale, h = term.rows * 8 / s.scale;  // full quality: 4x supersampled
         else {
             const int pw = term.w ? term.w : term.cols * 10, ph = term.h ? term.h : term.rows * 20;
             w = std::max(64, pw / s.scale), h = std::max(36, ph / s.scale);
@@ -966,7 +966,7 @@ int main(int argc, char **argv) {
             curId = id;
             f += textDiff(text, prevText);
         } else {
-            halve(px, W, H, small);
+            downsample(px, W, H, term.cols, term.rows * 2, small);
             f += halfBlocks(small.data(), text);
         }
         f += "\x1b[?2026l";
