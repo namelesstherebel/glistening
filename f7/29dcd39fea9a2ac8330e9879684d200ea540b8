@@ -1,0 +1,16 @@
+shaders/sprite.frag
+  h_39b16ebb7e214b 13-19
+tests/render.cpp
+  h_39b16ebb7e214b 137-139,145,147,149-150
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "f729dcd39fea9a2ac8330e9879684d200ea540b8",
+  "prompts": {},
+  "humans": {
+    "h_39b16ebb7e214b": {
+      "author": "namelesstherebel <126630357+namelesstherebel@users.noreply.github.com>"
+    }
+  }
+}
