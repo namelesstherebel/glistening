@@ -16,7 +16,14 @@ function run(root, args) {
   if (args[0] === 'setup') return require('./setup.cjs').setup(args.slice(1));
   const binary = binaryPath(root);
   if (!fs.existsSync(binary)) throw new Error('Native binary missing. Install a release bundle from https://github.com/namelesstherebel/glistening/releases');
-  const result = spawnSync(binary, args, { stdio: 'inherit', windowsHide: false });
+  // The terminal sends Ctrl+C (and Ctrl+\) to the child too. Ignore it here so
+  // the launcher outlives the child's own shutdown, which restores the terminal.
+  const ignore = () => {};
+  process.on('SIGINT', ignore);
+  process.on('SIGQUIT', ignore);
+  let result;
+  try { result = spawnSync(binary, args, { stdio: 'inherit', windowsHide: false }); }
+  finally { process.off('SIGINT', ignore); process.off('SIGQUIT', ignore); }
   if (result.error) throw result.error;
   if (result.signal) return result.signal === 'SIGINT' ? 130 : 1;
   return result.status ?? 1;
