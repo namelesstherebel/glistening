@@ -1,0 +1,22 @@
+platform/posix.cpp
+  h_39b16ebb7e214b 108
+term.hpp
+  h_39b16ebb7e214b 6,131-132,135-137,139-146,148
+tests/ptysmoke.cpp
+  h_39b16ebb7e214b 177-178
+tests/test.cpp
+  h_39b16ebb7e214b 685-695
+viz.cpp
+  h_39b16ebb7e214b 526,969
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "1fec96f5f06e73e0a90795498c21e03346edcaa9",
+  "prompts": {},
+  "humans": {
+    "h_39b16ebb7e214b": {
+      "author": "namelesstherebel <126630357+namelesstherebel@users.noreply.github.com>"
+    }
+  }
+}
