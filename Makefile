@@ -48,7 +48,7 @@ test: tests/test tests/render glistening
 	@test "$$(head -c 15 tests/smoke.ppm)" = "$$(printf 'P6\n320 180\n255')" && test $$(wc -c < tests/smoke.ppm) -eq $$((15 + 320 * 180 * 3)) \
 		&& rm -f tests/smoke.ppm && echo "DUMP SMOKE PASS"
 
-# Contact sheets of every scene, in its signature palette, into docs/ (needs python3 + Pillow).
+# Contact sheets of every scene, in its signature palette, into docs/ (needs python3 + Pillow: pip install -r tools/requirements.txt).
 sheets: tests/render
 	rm -rf docs/frames
 	./tests/render --sheets docs/frames --palette first

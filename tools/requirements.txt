@@ -1,0 +1,4 @@
+# Python dependencies of the helper scripts in this directory (not needed to build or run glistening).
+# Install with: python3 -m pip install -r tools/requirements.txt
+Pillow>=8.0   # contact.py, screenshot.py, ptyrun.py (ImageDraw anchor= needs 8.0)
+pyte>=0.8     # ptyrun.py: terminal emulation

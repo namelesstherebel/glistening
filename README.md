@@ -161,7 +161,7 @@ phrase=64
 
 - `scenes/*.frag` are the scenes. The `// @name`, `@desc`, `@busy` (0..1), `@bloom` and `@palettes` header lines are read at load. `scenes/NAME.vert` adds an instanced particle pass (`// @particles N`); see `galaxy.vert` and `phosphor.vert`. `scenes/common.glsl` documents the uniforms. Shaders are embedded at build time (`shaders.inc`), so the binary runs from anywhere.
 - `make test`: unit gates (analysis, director, library, spectrum and phases, scene choice, TUI layout at 40×12 to 200×60, keys, kitty and half-block encoders, config, Omarchy parsing). Then the render gate, which checks all 14 built-in scenes load and renders every scene on silence and on a synthetic track with a drop and checks it's not black, not flat, finite, reacts to the music, shows beat accents aligned with beats, and never flashes.
-- `make sheets`: contact sheets into `docs/`. `tools/ptyrun.py` drives the real binary in a pseudo-terminal (pyte), and `tools/screenshot.py` composites `--dump` frames with their text layer.
+- `make sheets`: contact sheets into `docs/`. `tools/ptyrun.py` drives the real binary in a pseudo-terminal (pyte), and `tools/screenshot.py` composites `--dump` frames with their text layer. These helpers need Python 3 with Pillow and pyte (`python3 -m pip install -r tools/requirements.txt`, ideally in a virtualenv) and the DejaVu Sans Mono font; `ptyrun.py` also needs `ffmpeg`.
 
 Files: `viz.cpp` (main loop, CLI), `engine.hpp` (renderer), `gl.hpp` (GL loader), `gpu.hpp` (platform context), `analysis.hpp`, `music.hpp`, `director.hpp`, `tui.hpp`, `term.hpp` (output encoders), `config.hpp`, `milkdrop.hpp`.
 

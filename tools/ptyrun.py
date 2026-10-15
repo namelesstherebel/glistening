@@ -2,6 +2,7 @@
 """Run glistening in a pseudo-terminal, send keys, and capture what a terminal
 would show (pyte emulation). Kitty graphics APCs are stripped and checked.
 
+requires: pip install -r tools/requirements.txt (pyte, Pillow), plus ffmpeg.
 usage: ptyrun.py COLSxROWS OUT.png [--kitty] [-- key-script]
 key script: whitespace-separated steps, e.g. "wait:3 tab wait:1 down enter wait:2 ?"
 Audio: $SONG (f32le stereo 44.1k); by default the render gate's fixture track,
