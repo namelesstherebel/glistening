@@ -186,7 +186,7 @@ private:
             if (!lost && now - lastCheck > std::chrono::seconds(2)) lastCheck = now, lost = defaultChanged(id_);
             if (lost && now >= nextRetry) {
                 h = reopen();
-                nextRetry = Clock::now() + (FAILED(h) ? std::chrono::milliseconds(500) : std::chrono::milliseconds(0));
+                nextRetry = Clock::now() + std::chrono::milliseconds(500);  // also after a success: a stream that fails at once must not be reopened every poll
                 if (FAILED(h)) {
                     std::lock_guard<std::mutex> l(mu_);
                     desc_ = "WASAPI loopback: no default output device (retrying)";
@@ -281,7 +281,7 @@ private:
             if (!lost && now - lastCheck > std::chrono::seconds(2)) lastCheck = now, lost = defaultChanged(id_);
             if (lost && now >= nextRetry) {
                 h = reopen();
-                nextRetry = Clock::now() + (FAILED(h) ? std::chrono::milliseconds(500) : std::chrono::milliseconds(0));
+                nextRetry = Clock::now() + std::chrono::milliseconds(500);  // also after a success: a stream that fails at once must not be reopened every poll
             }
         }
         close();
