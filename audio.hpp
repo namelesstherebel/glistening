@@ -49,13 +49,13 @@ private:
 };
 
 // Device frames (any channel count, interleaved float) to stereo frames:
-// mono is duplicated; front left/right are kept and a centre channel (5.1 /
-// 7.1 order: L R C ...) is folded in at -3 dB so dialogue and vocals count.
+// mono is duplicated; front left/right are kept and a centre channel (3.0 /
+// 5.1 / 7.1 order: L R C ...) is folded in at -3 dB so dialogue and vocals count.
 inline void downmix(const float *in, int channels, int frames, float *stereo) {
     for (int i = 0; i < frames; i++) {
         const float *f = in + size_t(i) * channels;
         float l = f[0], r = channels > 1 ? f[1] : f[0];
-        if (channels >= 6) l += 0.7071f * f[2], r += 0.7071f * f[2];
+        if (channels == 3 || channels >= 6) l += 0.7071f * f[2], r += 0.7071f * f[2];
         stereo[2 * i] = l, stereo[2 * i + 1] = r;
     }
 }

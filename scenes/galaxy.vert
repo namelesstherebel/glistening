@@ -57,5 +57,5 @@ void main() {
     bright *= (1.0 - 0.8 * lane) * (bulge ? 1.0 : 0.3 + 0.7 * smoothstep(0.1, 0.5, r));  // the crowded centre must not burn out
     if (knot) col = mix(uPal[3], uPal[4], 0.25 * lum), bright = (0.2 + 0.3 * lum) * (0.5 + 1.0 * uMid + 0.4 * uBeat) * tw;
     float size = (0.45 + 1.2 * pow(lum, 12.0) + (knot ? 0.5 : 0.0)) * (uRes.y / 540.0) * 2.0 / q.z;
-    sprite(s, s, size, col, 0.5 * (bright + accent * 3.0));
+    sprite(s, s, size, col, 0.5 * (bright + accent * 3.0) * uIntensity);
 }

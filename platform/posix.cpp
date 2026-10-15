@@ -106,8 +106,14 @@ std::string enterRaw() {
     raw.c_lflag &= ~(ICANON | ECHO);
     raw.c_cc[VMIN] = 0, raw.c_cc[VTIME] = 0;
     for (int sig : {SIGINT, SIGTERM, SIGHUP}) signal(sig, startupSignal);
-    if (tcsetattr(STDIN_FILENO, TCSANOW, &raw) < 0) return std::string("cannot set raw mode: ") + strerror(errno);
+    // Publish restoration state before changing the terminal: a startup signal
+    // during tcsetattr must restore even if the change already took effect.
     g_raw = 1;
+    if (tcsetattr(STDIN_FILENO, TCSANOW, &raw) < 0) {
+        const int error = errno;
+        restoreInput();
+        return std::string("cannot set raw mode: ") + strerror(error);
+    }
     return "";
 }
 
@@ -207,33 +213,80 @@ struct Process::Impl {
 };
 
 Process::Process() : p_(new Impl) {}
-Process::~Process() {
-    if (p_->fd >= 0) close(p_->fd);
-    stop();
-}
+Process::~Process() { stop(); }
 
 // fork + exec with stdout on a pipe, stdin and stderr on /dev/null (the
 // terminal belongs to glistening), in its own process group so a pipeline is
 // stopped as a whole. Only async-signal-safe calls between fork and exec:
 // the program path is resolved before forking.
 static bool spawn(Process::Impl &p, const char *path, char *const argv[], bool blocking) {
-    int pfd[2];
+    int pfd[2], ready[2];
     if (pipe(pfd) < 0) return false;
-    for (int f : pfd) fcntl(f, F_SETFD, FD_CLOEXEC);
+    if (pipe(ready) < 0) return close(pfd[0]), close(pfd[1]), false;
+    for (int f : {pfd[0], pfd[1], ready[0], ready[1]}) fcntl(f, F_SETFD, FD_CLOEXEC);
+    sigset_t blocked, previous;
+    sigemptyset(&blocked);
+    for (int sig : {SIGINT, SIGTERM, SIGHUP}) sigaddset(&blocked, sig);
+    if (sigprocmask(SIG_BLOCK, &blocked, &previous) < 0) {
+        close(pfd[0]), close(pfd[1]), close(ready[0]), close(ready[1]);
+        return false;
+    }
     const pid_t pid = fork();
     if (pid == 0) {
         setpgid(0, 0);
+        // Do not run the parent's terminal/process cleanup inside the child.
+        for (int sig : {SIGINT, SIGTERM, SIGHUP}) signal(sig, SIG_DFL);
+        close(ready[1]);
+        // Other parent threads may receive a startup signal despite this thread's
+        // mask. Do not exec unless the parent published our group first: its
+        // death closes ready and makes us exit without starting the command.
+        char go;
+        ssize_t n;
+        do { n = ::read(ready[0], &go, 1); } while (n < 0 && errno == EINTR);
+        close(ready[0]);
+        if (n != 1) _exit(127);
+        sigprocmask(SIG_SETMASK, &previous, nullptr);
         const int null = ::open("/dev/null", O_RDWR);
         if (null >= 0) dup2(null, STDIN_FILENO), dup2(null, STDERR_FILENO);
         dup2(pfd[1], STDOUT_FILENO);
+        close(pfd[0]), close(pfd[1]);
+        if (null > STDERR_FILENO) close(null);
         execv(path, argv);
         _exit(127);
     }
-    close(pfd[1]);
-    if (pid < 0) return close(pfd[0]), false;
+    close(pfd[1]), close(ready[0]);
+    if (pid < 0) {
+        close(pfd[0]), close(ready[1]);
+        sigprocmask(SIG_SETMASK, &previous, nullptr);
+        return false;
+    }
     setpgid(pid, pid);
     p.pid = p.pgid = pid, g_child = pid;
     p.fd = pfd[0], p.exited = false;
+    // A child killed before the handshake must not raise SIGPIPE in the parent.
+    sigset_t pipeSignal, oldMask, pending;
+    sigemptyset(&pipeSignal), sigaddset(&pipeSignal, SIGPIPE);
+    sigprocmask(SIG_BLOCK, &pipeSignal, &oldMask);
+    sigpending(&pending);
+    const char go = 1;
+    ssize_t sent;
+    do { sent = ::write(ready[1], &go, 1); } while (sent < 0 && errno == EINTR);
+    if (sent < 0 && errno == EPIPE && !sigismember(&pending, SIGPIPE)) {
+        sigset_t generated;
+        sigpending(&generated);
+        int sig;
+        if (sigismember(&generated, SIGPIPE)) sigwait(&pipeSignal, &sig);  // consume only the SIGPIPE this write generated
+    }
+    close(ready[1]);
+    sigprocmask(SIG_SETMASK, &oldMask, nullptr);
+    sigprocmask(SIG_SETMASK, &previous, nullptr);
+    if (sent != 1) {
+        kill(-pid, SIGKILL);
+        while (waitpid(pid, &p.st, 0) < 0 && errno == EINTR) {}
+        close(p.fd);
+        p.fd = -1, p.pid = p.pgid = -1, p.exited = true, g_child = 0;
+        return false;
+    }
     if (!blocking) fcntl(p.fd, F_SETFL, fcntl(p.fd, F_GETFL) | O_NONBLOCK);
     return true;
 }
@@ -285,6 +338,7 @@ int Process::status() const { return WIFEXITED(p_->st) ? WEXITSTATUS(p_->st) : 1
 // so a recycled id is never signalled.
 void Process::stop() {
     Impl &p = *p_;
+    if (p.fd >= 0) close(p.fd), p.fd = -1;
     if (p.pgid <= 0) return;
     auto groupGone = [&] { return kill(-p.pgid, 0) < 0 && errno == ESRCH; };
     if (p.pid > 0 || !groupGone()) {

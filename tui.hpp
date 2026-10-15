@@ -194,6 +194,7 @@ inline const std::vector<std::string> &paletteChoices() {
 class Ui {
 public:
     bool panel = false, help = false;
+    int helpScroll = 0;  // focused help row, independent of the panel selection
     int sel = 0;    // panel row
     int focus = 0;  // row of the current scene; the panel opens there
     Settings &s;
@@ -227,7 +228,9 @@ public:
             panel = !panel, help = false;
             if (panel) sel = std::clamp(focus, 0, int(it.size()) - 1);
         }
-        else if (k == "?") help = !help;
+        else if (k == "?") help = !help, helpScroll = 0;
+        else if (help && (k == "up" || k == "k")) helpScroll = (helpScroll + 15) % 16;
+        else if (help && (k == "down" || k == "j")) helpScroll = (helpScroll + 1) % 16;
         else if (panel && (k == "up" || k == "k")) sel = (sel + int(it.size()) - 1) % int(it.size());
         else if (panel && (k == "down" || k == "j")) sel = (sel + 1) % int(it.size());
         else if (panel && (k == "left" || k == "right" || k == "enter" || k == " ")) {
@@ -329,19 +332,16 @@ private:
         // Lay out by priority: name, tempo, meters, mode, palette, hint.
         int x = 1;
         x = sc.text(x, y, " " + fit(name, std::min(20, W - 2)), FG, DEF, BOLD);
-        const int room = W - (x - 1);
-        int used = 0;
-        auto fits = [&](const std::string &s2) { return used + u8len(s2) + 3 <= room; };
-        std::vector<std::pair<std::string, unsigned>> parts;
-        if (!pal.empty() && room > 50) parts.push_back({fit(pal, 18), MUTED});
-        if (fits(std::string(tempo) + " " + dots)) parts.push_back({std::string(tempo) + " " + dots, st.sure ? FG : MUTED}), used += u8len(parts.back().first) + 3;
-        if (fits(meters)) parts.push_back({meters, st.accent}), used += 11;
-        if (fits(mode)) parts.push_back({mode, MUTED}), used += u8len(mode) + 3;
-        for (auto &[t, c] : parts) {
-            if (x + 3 + u8len(t) > sc.cols - 1) break;
-            x = sc.text(x, y, "  ", FG);
-            x = sc.text(x, y, t, c);
-        }
+        auto part = [&](const std::string &t, unsigned color) {
+            if (x + 2 + u8len(t) <= sc.cols - 1) {
+                x = sc.text(x, y, "  ", FG);
+                x = sc.text(x, y, t, color);
+            }
+        };
+        part(std::string(tempo) + " " + dots, st.sure ? FG : MUTED);
+        part(meters, st.accent);
+        part(mode, MUTED);
+        if (!pal.empty()) part(fit(pal, 18), MUTED);
         if (sc.cols - 2 - u8len(hint) > x + 2) sc.text(sc.cols - 2 - u8len(hint), y, hint, FAINT);
         return {0, y, sc.cols, 1};
     }
@@ -442,12 +442,14 @@ private:
         int H = std::min(rowsN + 4, sc.rows - 2);
         const int x0 = (sc.cols - W) / 2, y0 = std::max(1, (sc.rows - H) / 2);
         sc.fill(x0, y0, W, H, DEF);  // covers whatever is underneath (the panel)
-        sc.text(x0 + 2, y0 + 1, "Keys", FG, DEF, BOLD);
         const int shown = H - 4;
+        const bool scroll = shown < rowsN;
+        sc.text(x0 + 2, y0 + 1, scroll ? "Keys  ↑↓ scroll  esc close" : "Keys", FG, DEF, BOLD);
+        const int first = scroll ? std::clamp(helpScroll % rowsN - shown + 1, 0, rowsN - shown) : 0;
         for (int i = 0; i < n; i++) {
             const int c = two ? i / rowsN : 0, r = two ? i % rowsN : i;
-            if (r >= shown) continue;
-            const int x = x0 + 2 + c * (colW + 1), y = y0 + 3 + r;
+            if (r < first || r >= first + shown) continue;
+            const int x = x0 + 2 + c * (colW + 1), y = y0 + 3 + r - first;
             sc.text(x, y, pad(keys[i][0], 6), st.accent, DEF, BOLD);
             sc.text(x + 7, y, fit(keys[i][1], std::min(colW, W - 4) - 7), FG);
         }

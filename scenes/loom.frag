@@ -51,9 +51,9 @@ void main() {
     float glow = 0.3 + 0.35 * uBass + 0.2 * uEnergySlow + 0.25 * uBeat;
     vec3 warp = warpC * tubeX * (0.55 + 0.45 * cos(f.y * PI)) * glow;
     vec3 weft = weftC * tubeY * (0.55 + 0.45 * cos(f.x * PI)) * glow;
-    vec3 under = mix(weft * cv * (1.0 - 0.6 * cw), warp * cw * (1.0 - 0.6 * cv), over);
-    vec3 top = mix(warp, weft, over);
-    float topCover = mix(cw, cv, over);
+    vec3 under = mix(warp * cw * (1.0 - 0.6 * cv), weft * cv * (1.0 - 0.6 * cw), over);
+    vec3 top = mix(weft, warp, over);
+    float topCover = mix(cv, cw, over);
     vec3 col = uPal[0] * 0.3 + under * 0.4;
     col = mix(col, top, topCover);
 

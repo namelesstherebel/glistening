@@ -253,9 +253,9 @@ private:
         f_.conf += (conf - f_.conf) * 0.5f;
 
         // Hysteresis: small drift is smoothed; a jump needs 3 agreeing estimates;
-        // weak periodicity never moves the tempo (avoids wandering on beatless music).
-        if (conf < 0.12f && f_.bpm > 0) {
-        } else if (f_.bpm == 0 || std::abs(bpm - f_.bpm) < 2) {
+        // Acquisition needs usable confidence; weak periodicity cannot move tempo or phase.
+        if (conf < 0.12f || (f_.bpm == 0 && f_.conf < 0.25f)) return;
+        if (f_.bpm == 0 || std::abs(bpm - f_.bpm) < 2) {
             f_.bpm = f_.bpm == 0 ? bpm : f_.bpm * 0.7f + bpm * 0.3f;
             candCount_ = 0;
         } else if (std::abs(bpm - candBpm_) < 2 && ++candCount_ >= 3) {

@@ -121,6 +121,7 @@ public:
     // presets get a neutral score so the library keeps exploring.
     template <class Rng>
     int pick(float energy, Rng &rng) const {
+        if (p.empty()) return -1;
         std::vector<float> known;
         for (auto &e : p)
             if (e.n >= 60 && e.flag >= 0) known.push_back(e.motion);

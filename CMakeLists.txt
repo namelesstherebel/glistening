@@ -46,7 +46,8 @@ add_custom_command(
   COMMAND ${CMAKE_COMMAND} -DROOT=${CMAKE_SOURCE_DIR} -DOUT=${GLISTENING_GEN}/shaders.inc
           -P ${CMAKE_SOURCE_DIR}/cmake/embed-shaders.cmake
   DEPENDS ${GLISTENING_SHADER_FILES} ${CMAKE_SOURCE_DIR}/cmake/embed-shaders.cmake
-  COMMENT "Embedding shaders")
+  COMMENT "Embedding shaders"
+  VERBATIM)
 add_custom_target(glistening_shaders DEPENDS ${GLISTENING_GEN}/shaders.inc)
 
 # GL context per OS: glistening_gpu. Everything else OS-specific: glistening_platform.
@@ -93,13 +94,15 @@ install(TARGETS glistening RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR})
 
 include(CTest)
 if(BUILD_TESTING)
+  find_package(Threads REQUIRED)
   add_executable(glistening_unit tests/test.cpp)
-  target_link_libraries(glistening_unit PRIVATE glistening_platform)
+  target_link_libraries(glistening_unit PRIVATE glistening_platform Threads::Threads)
   add_executable(glistening_render tests/render.cpp)
   add_dependencies(glistening_render glistening_shaders)
   target_include_directories(glistening_render PRIVATE ${GLISTENING_GEN})
   target_link_libraries(glistening_render PRIVATE glistening_gpu)
   add_executable(glistening_ptysmoke tests/ptysmoke.cpp)
+  target_link_libraries(glistening_ptysmoke PRIVATE Threads::Threads)
   if(NOT WIN32)
     find_library(UTIL_LIB util)
     if(UTIL_LIB)
@@ -109,6 +112,7 @@ if(BUILD_TESTING)
 
   add_test(NAME unit COMMAND glistening_unit)
   add_test(NAME render COMMAND glistening_render --size 320x180)
+  add_test(NAME render_regressions COMMAND glistening_render --regressions)
   add_test(NAME render_wide COMMAND glistening_render --scene clockwork --size 1000x240)
   add_test(NAME version COMMAND glistening --version)
   add_test(NAME self_test COMMAND glistening --self-test)

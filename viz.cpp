@@ -983,7 +983,11 @@ int main(int argc, char **argv) {
         }
         frame++;
 
-        if (dirty && t0 - lastSave > std::chrono::seconds(1)) s.save(cfgPath), dirty = false, lastSave = t0;
+        if (dirty && t0 - lastSave > std::chrono::seconds(1)) {
+            dirty = !s.save(cfgPath);
+            if (dirty) say("settings unsaved: cannot write " + cfgPath, 2);
+            lastSave = t0;
+        }
         const auto budget = std::chrono::microseconds(1000000 / fps);
         const auto spent = Clock::now() - t0;
         if (spent < budget) std::this_thread::sleep_for(budget - spent);
@@ -991,7 +995,7 @@ int main(int argc, char **argv) {
 
     for (auto &n : shmNames) sys::shmUnlink(n.first);
     md.save();
-    if (!dump) s.save(cfgPath);
+    const bool saveFailed = !dump && !s.save(cfgPath);
     if (dump && sys::quitSignal) return restore(), fprintf(stderr, "glistening: interrupted\n"), 128 + int(sys::quitSignal);  // ~Pcm stops the source
     // A headless run whose source ended must know how it ended before reporting success.
     if (dump && pcm.eof && !eofChecked) {
@@ -999,6 +1003,7 @@ int main(int argc, char **argv) {
         if (pcm.failed()) return restore(), sourceFailed(), 1;
     }
     restore();
+    if (saveFailed) return fprintf(stderr, "glistening: settings unsaved: cannot write %s\n", cfgPath.c_str()), 1;
     const double secs = std::chrono::duration<double>(Clock::now() - start).count();
     if (!dump) fprintf(stderr, "glistening: %u frames in %.1fs (%.1f fps) at %dx%d, %s\n", frame, secs, frame / secs, W, H, kitty ? "kitty graphics" : "half blocks");
     return 0;

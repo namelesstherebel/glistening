@@ -22,7 +22,7 @@ vec2 emitter(float k, float flow) {
 }
 // Dye laid along the emitter's path since the last frame, so fast sources draw lines, not dots.
 vec3 splat(vec2 p, float k, float r, vec3 col, float a) {
-    vec2 b = emitter(k, uFlow), c = emitter(k, uFlow - uDt * 1.5), ba = c - b;
+    vec2 b = emitter(k, uFlow), c = emitter(k, uFlow - uFlowDelta), ba = c - b;
     float h = clamp(dot(p - b, ba) / max(dot(ba, ba), 1e-8), 0.0, 1.0);
     vec2 d = p - b - ba * h;
     return col * a * exp(-dot(d, d) / (r * r));

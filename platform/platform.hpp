@@ -37,7 +37,9 @@ std::string enterRaw();
 void restoreInput();  // idempotent; safe after a failed enterRaw
 void runHandlers();   // main loop: quit and resize become flags; SIGPIPE ignored
 void quitHandlers();  // headless: interrupts only set quitFlag
-void write(const std::string &s);  // all of it, unless quitFlag is set while the terminal stalls
+// Best effort: checks quit on interrupted/would-block POSIX writes and between
+// Windows chunks. Pending synchronous I/O is not guaranteed to be cancellable.
+void write(const std::string &s);
 std::string readInput(int waitMs);  // waits up to waitMs for the first byte; never blocks after that
 TermSize size();
 bool resized();  // a resize happened since the last call

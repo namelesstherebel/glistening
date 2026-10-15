@@ -24,7 +24,7 @@ void main() {
     float r2 = dot(uv, uv);
     float n = uVariant.z < 0.5 ? 5.0 : 7.0;
     // Every 16 beats the plate turns by one symmetry step, eased over the last beat.
-    float block = floor(uBeats / 16.0), into = mod(uBeats, 16.0) + uBeatPhase;
+    float block = uPhrase, into = mod(uBeats, 16.0) + uBeatPhase;
     float rotA = uVariant.x * 6.28 + (block + smoothstep(15.0, 16.0, into)) * PI / n + uFlow * 0.004;
     float scale = 34.0 + 4.0 * sin(uFlow * 0.03 + uSeed * 6.0) - 4.0 * uBass - 4.0 * uDrop;
     vec2 p = uv * (1.0 + 0.35 * r2) * scale;  // a gentle lens

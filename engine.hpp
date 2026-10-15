@@ -76,7 +76,8 @@ struct Target {
         glViewport(0, 0, w, h);
     }
     void free() {
-        if (fbo) glDeleteFramebuffers(1, &fbo), glDeleteTextures(1, &tex);
+        if (fbo) glDeleteFramebuffers(1, &fbo);
+        if (tex) glDeleteTextures(1, &tex);
         fbo = tex = 0, w = h = 0;
     }
 };
@@ -92,6 +93,26 @@ inline std::string meta(const std::string &src, const std::string &key) {
             return v;
         }
     return "";
+}
+
+// Same clamped linear samples and five-tap body as phosphor.vert.
+inline float waveformTrigger(const std::vector<float> &wave) {
+    auto sample = [&](float x) {
+        const float p = std::clamp(x, 0.f, 1.f) * (Music::WAVE - 1);
+        const int i = int(p);
+        return wave[i] + (wave[std::min(i + 1, Music::WAVE - 1)] - wave[i]) * (p - i);
+    };
+    auto body = [&](float x) {
+        constexpr float e = 5.f / 1024;
+        return (sample(x - 2 * e) + 2 * sample(x - e) + 3 * sample(x) + 2 * sample(x + e) + sample(x + 2 * e)) / 9;
+    };
+    float prev = body(0.03f);
+    for (int k = 1; k <= 48; k++) {
+        const float x = 0.03f + k * 0.009f, s = body(x);
+        if (prev < 0 && s >= 0) return x;
+        prev = s;
+    }
+    return 0.03f;
 }
 
 class Engine {
@@ -256,6 +277,7 @@ public:
         glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
         upload(specTex_, BANDS, 1, m.spectrum.data());
         upload(waveTex_, Music::WAVE, 1, m.wave.data());
+        trigger_ = waveformTrigger(m.wave);
         upload(histTex_, BANDS, Music::HIST, m.history.data());
 
         fade_ = std::min(1.f, fade_ + dt / fadeLen_);
@@ -391,6 +413,7 @@ private:
     Target down_t, blur_t, out_;
     GLuint vao_ = 0, specTex_ = 0, waveTex_ = 0, histTex_ = 0;
     int w_ = 0, h_ = 0;
+    float trigger_ = 0.03f;
     float fade_ = 1, fadeLen_ = 1, fadeSeed_ = 0;
     struct {
         float mix = 1, glow = 0, drop = 0, time = 0, extA = 0, extB = 0, dt = 1 / 30.f;
@@ -412,6 +435,10 @@ private:
             glUniform1f(p("uTime"), float(m.time - s.start));
             glUniform1f(p("uDt"), std::clamp(dt, 0.001f, 1.f));  // full elapsed time: decays stay frame-rate independent
             glUniform1f(p("uFlow"), float(m.flow - s.flow0));
+            glUniform1f(p("uFlowDelta"), float(m.flowDelta));
+            glUniform1f(p("uTrigger"), trigger_);
+            glUniform1f(p("uPhrase"), float((m.beats / 16) % 70));
+            glUniform1f(p("uBeatActive"), !m.silent && m.beats > 0 && (m.beatPhase > 0 || m.beat > 0.01f));
             glUniform1f(p("uBass"), m.bass), glUniform1f(p("uMid"), m.mid), glUniform1f(p("uHigh"), m.high);
             glUniform1f(p("uEnergy"), m.energy), glUniform1f(p("uEnergySlow"), m.energySlow);
             glUniform1f(p("uBeat"), m.beat), glUniform1f(p("uDownbeat"), m.downbeat), glUniform1f(p("uDrop"), m.drop);

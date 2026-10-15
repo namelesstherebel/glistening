@@ -54,11 +54,11 @@ static Run analyse(const Audio &a) {
 }
 
 // Beat timing against ground truth over [from, to).
-static void beatGates(const char *name, const Run &r, double bpm, double from, double to) {
+static void beatGates(const char *name, const Run &r, double bpm, double from, double to, double phase = 0) {
     const double P = 60 / bpm;
     std::vector<double> err;
     for (double b : r.beats)
-        if (b >= from && b < to) err.push_back(b - P * std::round(b / P));
+        if (b >= from && b < to) err.push_back(b - phase - P * std::round((b - phase) / P));
     std::vector<double> sorted = err;
     std::sort(sorted.begin(), sorted.end());
     const double median = sorted.empty() ? 1 : sorted[sorted.size() / 2];
@@ -118,9 +118,39 @@ static void testAnalysis() {
     testRealistic(126);
     for (double bpm : {95.0, 120.0, 128.0, 140.0}) testTempo(bpm);
 
-    {
-        auto r = analyse(render(20, [](double) { return 0.3f * noise(); }));
+    for (unsigned seed : {0u, 4u, 7u}) {
+        std::mt19937 rng(seed);
+        auto r = analyse(render(20, [&](double) { return 0.3f * std::uniform_real_distribution<float>(-1, 1)(rng); }));
         check(r.last.conf < DirectorConfig{}.minConf, "white noise has low tempo confidence", fmt("conf %.2f", r.last.conf));
+        check(r.beats.empty() && std::all_of(r.hops.begin(), r.hops.end(), [](const Features &f) { return f.bpm == 0 && f.beatPhase == 0; }),
+              "white noise never acquires tempo or beat phase",
+              fmt("%.2f BPM, %.0f beats", r.last.bpm, r.beats.size()));
+    }
+    {
+        std::mt19937 rng(7);
+        hatPrev = 0;
+        auto r = analyse(render(20, [&](double t) {
+            return t < 8 ? 0.3f * std::uniform_real_distribution<float>(-1, 1)(rng) : groove(t - 8, 120, true, false);
+        }));
+        check(std::abs(r.last.bpm - 120) <= 1 && r.last.conf > 0.3f, "periodic music acquires tempo after noise");
+        beatGates("groove after noise", r, 120, 14, 20);
+    }
+    {
+        auto r = analyse(render(20, [](double t) {
+            return 0.1f * kick(std::fmod(t, 0.5)) + 0.15f * float(std::sin(2 * M_PI * 220 * t));
+        }));
+        check(std::abs(r.last.bpm - 120) <= 1 && r.last.conf > 0.3f, "weak periodic kicks acquire tempo over sustained pad");
+        beatGates("weak kicks", r, 120, 8, 20);
+    }
+    {
+        hatPrev = 0;
+        auto r = analyse(render(16, [](double t) { return t < 8 ? groove(t, 120, true, false) : 0.f; }));
+        check(std::abs(r.last.bpm - 120) <= 1 && r.last.conf < 0.25f, "acquired tempo survives confidence loss during silence");
+    }
+    {
+        hatPrev = 0;
+        auto r = analyse(render(20, song));
+        beatGates("song after drop", r, SONG_BPM, SONG_DROP + 2, 20, SONG_QUIET);
     }
     {
         auto r = analyse(render(10, [](double) { return 0.f; }));
@@ -258,6 +288,8 @@ static void testLibrary() {
     lib.p[150].flag = -1;
     lib.p[151].flag = -2;
     std::mt19937 rng(1);
+    Library empty({});
+    check(empty.pick(0.5f, rng) == -1 && empty.random(rng) == -1, "empty preset library has no selection");
     bool banned = false;
     double lo = 0, hi = 0;
     for (int k = 0; k < 2000; k++) {
@@ -342,6 +374,18 @@ static void reportReal(const char *path) {
 // --- spectrum, beat/bar phase, frame-rate accents ---------------------------------
 static void testMusic() {
     {
+        hatPrev = 0;
+        auto a = render(12, [](double t) { return groove(t, 120, true, false); });
+        Listener listener;
+        long detected = 0;
+        listener.feed(a.data(), int(a.size() / 2), [&](const Features &f) { detected += f.beat; });
+        listener.frame(0.1f);
+        check(detected > 3 && listener.music.beats == detected && listener.music.beat > 0.9f,
+              "stalled video counts every audio beat and preserves beat accent", fmt("%.0f detected, %.0f counted", detected, listener.music.beats));
+        listener.frame(1 / 60.f);
+        check(listener.music.beats == detected, "next video frame never recounts accumulated beats");
+    }
+    {
         auto r = analyse(render(3, [](double t) { return 0.5f * float(std::sin(2 * M_PI * 1000 * t)); }));
         const auto &sp = r.last.spectrum;
         const int peak = int(std::max_element(sp.begin(), sp.end()) - sp.begin());
@@ -394,6 +438,12 @@ static void testMusic() {
         const double flow0 = m.flow;
         for (int i = 0; i < 60; i++) m.update(f, nullptr, 1 / 60.f);
         check(m.flow > flow0 + 0.3, "music clock advances", fmt("+%.2f in 1 s", m.flow - flow0));
+        const double before = m.flow;
+        m.update(f, nullptr, 0.125f);
+        check(m.flowDelta > 0 && std::abs((m.flow - before) - m.flowDelta) < 1e-12,
+              "music flowDelta equals actual update increment");
+        m.update(f, nullptr, 0);
+        check(m.flowDelta == 0, "zero-duration update has zero flowDelta");
     }
 }
 
@@ -458,6 +508,50 @@ static void testLayout() {
         }
         check(true, ("TUI fits at " + std::to_string(c) + "x" + std::to_string(r) + " (HUD, toast, panel, help, every selection)").c_str());
     next:;
+    }
+    {
+        Settings s;
+        Ui ui(s);
+        ui.panel = true, ui.sel = 3;
+        ui.key("?", 14, true);
+        const std::vector<std::string> labels = {"control panel", "choose a scene", "previous / next", "next scene (director)",
+            "auto director on/off", "MilkDrop mode", "cycle palette", "new look / random", "sensitivity", "effect intensity",
+            "HUD", "favourite / ban", "reload shaders", "info", "this help", "quit"};
+        std::vector<bool> seen(labels.size());
+        bool clean = true;
+        for (int step = 0; step < 16; step++) {
+            Screen sc(40, 12);
+            ui.draw(sc, sampleState());
+            std::string text;
+            for (int y = 0; y < sc.rows; y++) {
+                for (int x = 0; x < sc.cols; x++) text += sc.at(x, y).ch;
+                text += "\n";
+            }
+            for (size_t i = 0; i < labels.size(); i++) seen[i] = seen[i] || text.find(labels[i]) != std::string::npos;
+            clean &= !sc.clipped && ui.sel == 3;
+            ui.key(step % 2 ? "down" : "j", 14, true);
+        }
+        ui.key("esc", 14, true);
+        check(clean && std::all_of(seen.begin(), seen.end(), [](bool v) { return v; }) && ui.panel && !ui.help && ui.sel == 3,
+              "40x12 help scroll reaches every entry and preserves underlying panel");
+    }
+    {
+        Settings s;
+        Ui ui(s);
+        auto st = sampleState();
+        st.toast.clear();
+        st.palette = std::string(200, 'p');
+        Screen sc(100, 24);
+        ui.draw(sc, st);
+        std::string row;
+        int meters = 0;
+        for (int x = 0; x < sc.cols; x++) {
+            const auto &cell = sc.at(x, sc.rows - 1);
+            row += cell.ch;
+            meters += cell.fg == st.accent;
+        }
+        check(!sc.clipped && row.find("128 bpm") != std::string::npos && row.find("auto") != std::string::npos && meters == int(std::size(st.spectrum)),
+              "long palette leaves HUD tempo, meters and director mode visible");
     }
     {
         Settings s;
@@ -550,6 +644,13 @@ static bool validUtf8(const std::string &s) {
 }
 
 static void testEncoders() {
+    {
+        Pen p;
+        std::string out;
+        p.to(out, DEF, DEF, 0);
+        out += "x";
+        check(out == "\x1b[0mx", "pen resets inherited terminal style before first default cell");
+    }
     const int w = 97, h = 61;
     std::vector<unsigned char> rgb(w * h * 3);
     for (size_t i = 0; i < rgb.size(); i++) rgb[i] = (unsigned char)(i * 7);
@@ -663,6 +764,16 @@ static void testConfig() {
     s.scene = "ink", s.palette = "desktop", s.director = false, s.milkdrop = true, s.hud = false, s.gain = 1.56f;
     s.intensity = 0.7f, s.scale = 3, s.phrase = 32, s.cellbg = true;
     Settings t;
+    const auto file = (std::filesystem::temp_directory_path() / "glistening-test-config-save").string();
+    std::filesystem::remove(file);
+    Settings loaded;
+    const bool saved = s.save(file);
+    check(saved && loaded.load(file) && loaded.str() == s.str(), "config save reports success and round-trips on disk");
+    check(!s.save(file + "/child"), "config save reports unwritable parent path");
+#ifndef _WIN32
+    check(!s.save("/dev/full"), "config save reports buffered write or close failure");
+#endif
+    std::filesystem::remove(file);
     t.parse(s.str());
     check(t.str() == s.str(), "config round trip");
     Settings g;
@@ -711,7 +822,7 @@ static void testAudioPlumbing() {
         ok &= r.pop(out, 10) == 4 && out[0] == 2 && out[2] == 3 && out[6] == 5 && out[7] == -5 && r.pop(out, 1) == 0;
         check(ok, "ring: order, wrap-around, full ring drops (counted), empty pops nothing");
     }
-    {  // Two threads: every frame arrives once, in order.
+    for (bool corrupt : {false, true}) {  // A mismatch must still drain the producer.
         Ring r(256);
         const int total = 400000;
         std::thread producer([&] {
@@ -719,24 +830,31 @@ static void testAudioPlumbing() {
             for (int k = 0; k < total;) {
                 const int n = std::min(64, total - k);
                 for (int i = 0; i < n; i++) fr[2 * i] = float(k + i), fr[2 * i + 1] = float(-(k + i));
+                if (corrupt && k == 0) fr[0] = -1;
                 k += int(r.push(fr, size_t(n)));  // a full ring takes fewer; retry the rest
             }
         });
         float got[2 * 100];
         bool ok = true;
-        for (int next = 0; next < total && ok;)
+        for (int next = 0; next < total;)
             for (size_t i = 0, n = r.pop(got, 100); i < n; i++, next++) ok &= got[2 * i] == float(next) && got[2 * i + 1] == float(-next);
         producer.join();
-        check(ok, "ring: concurrent producer and consumer see every frame once, in order");
+        check(ok == !corrupt, corrupt ? "ring: order mismatch detected while draining producer to completion" :
+              "ring: concurrent producer and consumer see every frame once, in order");
     }
     {
-        const float six[6] = {1, 2, 3, 4, 5, 6}, mono[2] = {0.25f, -0.5f};
+        const float six[6] = {1, 2, 3, 4, 5, 6}, mono[2] = {0.25f, -0.5f}, three[6] = {0, 0, 1, 1, 2, 3}, quad[4] = {1, 2, 3, 4};
         float st[4];
         downmix(six, 6, 1, st);
         bool ok = std::fabs(st[0] - (1 + 0.7071f * 3)) < 1e-5 && std::fabs(st[1] - (2 + 0.7071f * 3)) < 1e-5;
         downmix(mono, 1, 2, st);
         ok &= st[0] == 0.25f && st[1] == 0.25f && st[2] == -0.5f && st[3] == -0.5f;
-        check(ok, "downmix: 5.1 keeps front pair plus centre at -3 dB; mono is duplicated");
+        downmix(three, 3, 2, st);
+        ok &= std::fabs(st[0] - 0.7071f) < 1e-5 && std::fabs(st[1] - 0.7071f) < 1e-5 &&
+              std::fabs(st[2] - (1 + 0.7071f * 3)) < 1e-5 && std::fabs(st[3] - (2 + 0.7071f * 3)) < 1e-5;
+        downmix(quad, 4, 1, st);
+        ok &= st[0] == 1 && st[1] == 2;
+        check(ok, "downmix: 3.0 and 5.1 fold centre at -3 dB; mono duplicated; quad keeps fronts");
     }
     {  // 1 kHz at 48 kHz -> 44.1 kHz: right length, right waveform, seamless across chunks.
         const int in = 48000;
@@ -779,6 +897,25 @@ static void testProcess(const std::string &self) {
     for (auto &a : tricky) want += a + "\n";
     check(started && out == want && p.wait(2000) && !p.failed(), "process: arguments arrive exactly, output read to its end", std::to_string(out.size()) + " bytes");
 
+#ifndef _WIN32
+    {
+        sys::Process reuse;
+        bool ok = true;
+        for (int i = 0; i < 40; i++) {
+            ok &= reuse.startShell("printf x", true);
+            ok &= reuse.wait(2000) && reuse.open();  // waiting preserves unread output
+            reuse.stop();
+            ok &= !reuse.open();
+        }
+        std::string text;
+        const bool startedAgain = reuse.startShell("printf preserved", true);
+        ok &= startedAgain && reuse.wait(2000) && reuse.poll();
+        for (long n; startedAgain && (n = reuse.read(b, sizeof b)) != 0;)
+            if (n > 0) text.append(b, size_t(n));
+        check(ok && text == "preserved" && !reuse.open(), "process stop releases unread output; reuse and wait-before-read preserve output");
+    }
+#endif
+
     sys::Process e;
     check(e.startShell("exit 3", false) && e.wait(5000) && e.failed() && e.status() == 3, "process: shell line exit status reported", std::to_string(e.status()));
 
@@ -802,6 +939,14 @@ int main(int argc, char **argv) {
 #endif
         for (size_t i = 2; i < args.size(); i++) fwrite(args[i].data(), 1, args[i].size(), stdout), fputc('\n', stdout);
         return 0;
+    }
+    if (args.size() > 1 && args[1] == "--audio-review") {
+        testAudioPlumbing();
+        testAnalysis();
+        testLibrary();
+        testMusic();
+        printf("\n%s (%d failed)\n", failures ? "FAILED" : "ALL PASS", failures);
+        return failures != 0;
     }
     testAudioPlumbing();
     testProcess(args[0]);

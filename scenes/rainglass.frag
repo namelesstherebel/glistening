@@ -46,7 +46,7 @@ vec3 street(vec2 p, float sharp) {
 vec3 puddle(vec2 p, float sharp) {
     vec2 q = vec2(p.x, 2.0 * HORIZON - p.y);
     float crest = 0.0;
-    for (int k = 0; k < 3; k++) {  // one ring per recent beat, the newest strongest
+    for (int k = 0; k < 3 && uBeatActive > 0.5; k++) {  // one ring per recent beat, the newest strongest
         float b = uBeats - float(k), age = float(k) + uBeatPhase;
         vec2 c = vec2(hash11(b * 1.37 + uSeed) * 1.6 - 0.8, HORIZON - 0.06 - 0.25 * hash11(b * 2.11 + 4.0));
         float r = length((p - c) * vec2(1.0, 3.2)), R = 0.05 + age * 0.16;

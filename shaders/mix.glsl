@@ -19,11 +19,14 @@ vec3 slotA(vec2 uv) { vec3 c = texture(uA, uv).rgb; return uExtA > 0.5 ? fromDis
 vec3 slotB(vec2 uv) { vec3 c = texture(uB, uv).rgb; return uExtB > 0.5 ? fromDisplay(c) : c; }
 // Organic dissolve: a slow noise field decides which pixels switch first.
 float mixMask(vec2 uv) {
+    if (uMix <= 0.0) return 0.0;
     if (uMix >= 1.0) return 1.0;
     vec2 p = uv * vec2(uRes.x / uRes.y, 1.0);
     float n = 0.65 * vnoise(p * 2.5 + uSeed * 40.0) + 0.35 * vnoise(p * 7.0 - uSeed * 17.0);
-    const float w = 0.3;
-    return smoothstep(n - w, n, uMix * (1.0 + w));
+    // Warp progress toward each pixel's noise value. The warp stays monotone
+    // and strictly inside (0, 1) throughout the dissolve.
+    float t = uMix + (0.5 - n) * 2.0 * uMix * (1.0 - uMix);
+    return smoothstep(0.0, 1.0, t);
 }
 vec3 scene(vec2 uv) {
     float m = mixMask(uv);

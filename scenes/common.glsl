@@ -2,6 +2,10 @@
 uniform vec2 uRes;            // render size, pixels
 uniform float uTime;          // seconds since this scene appeared
 uniform float uDt;            // seconds since the previous frame
+uniform float uFlowDelta;     // actual music-clock increment since the previous frame
+uniform float uTrigger;       // waveform rising crossing, computed once per frame
+uniform float uBeatActive;    // recent detected beats, including valid phase-zero frames
+uniform float uPhrase;        // 16-beat phrase modulo 70 (full turns for 5/7-fold symmetry)
 uniform float uFlow;          // music clock: advances faster with energy, bass and beats
 uniform float uBass, uMid, uHigh, uEnergy, uEnergySlow;  // 0..1, eased
 uniform float uBeat, uDownbeat, uDrop;                   // accents: quick rise, smooth fall

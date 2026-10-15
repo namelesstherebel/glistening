@@ -194,7 +194,12 @@ struct Settings {
         parse(ss.str());
         return true;
     }
-    void save(const std::string &path) const { std::ofstream(std::filesystem::u8path(path)) << str(); }
+    bool save(const std::string &path) const {
+        std::ofstream out(std::filesystem::u8path(path));
+        out << str();
+        out.close();  // buffered writes and close can fail after opening succeeded
+        return bool(out);
+    }
 };
 
 }  // namespace tv

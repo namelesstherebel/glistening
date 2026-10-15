@@ -1,7 +1,7 @@
 'use strict';
 const { test } = require('node:test');
 const assert = require('node:assert/strict');
-const { copyFileSync, mkdtempSync, mkdirSync, writeFileSync, rmSync } = require('node:fs');
+const { copyFileSync, mkdtempSync, mkdirSync, readFileSync, writeFileSync, rmSync } = require('node:fs');
 const { tmpdir } = require('node:os');
 const path = require('node:path');
 const { spawn, spawnSync } = require('node:child_process');
@@ -105,3 +105,38 @@ for (const [signal, expected] of [['TERM', 143], ['HUP', 129]]) {
     } finally { rmSync(root, { recursive: true, force: true }); }
   });
 }
+
+
+test('bundle validation rejects placeholders and wrong-platform executables', async () => {
+  const { validateNative, targets } = await import('../scripts/package-contents.mjs');
+  for (const target of targets) {
+    assert.throws(() => validateNative(Buffer.alloc(10000), target), /Invalid native executable/);
+  }
+  if (hostSupported) {
+    const native = readFileSync(process.execPath);
+    const host = `${process.platform}-${process.arch}`;
+    validateNative(native, host);
+    for (const target of targets.filter(t => t !== host)) {
+      assert.throws(() => validateNative(native, target), /Invalid native executable/);
+    }
+  }
+});
+
+test('bundle validation requires complete manifest and verifies real binary checksums', async () => {
+  const { validateBundle, targets, executableName } = await import('../scripts/package-contents.mjs');
+  const root = mkdtempSync(path.join(tmpdir(), 'glistening-manifest-'));
+  try {
+    const manifest = path.join(root, 'prebuilt', 'SHA256SUMS.json');
+    mkdirSync(path.dirname(manifest), { recursive: true });
+    writeFileSync(manifest, JSON.stringify({}));
+    assert.throws(() => validateBundle(root), /every release target/);
+    if (process.platform === 'linux' && process.arch === 'x64') {
+      const hashes = Object.fromEntries(targets.map(target => [`${target}/${executableName(target)}`, '0'.repeat(64)]));
+      writeFileSync(manifest, JSON.stringify(hashes));
+      const binary = path.join(root, 'prebuilt', 'linux-x64', 'glistening');
+      mkdirSync(path.dirname(binary));
+      copyFileSync(process.execPath, binary);
+      assert.throws(() => validateBundle(root), /checksum mismatch: linux-x64/);
+    }
+  } finally { rmSync(root, { recursive: true, force: true }); }
+});

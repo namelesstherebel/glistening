@@ -10,7 +10,8 @@ FONT = "/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf"
 font = ImageFont.truetype(FONT, 18) if os.path.exists(FONT) else ImageFont.load_default()
 big = ImageFont.truetype(FONT, 26) if os.path.exists(FONT) else font
 ids = sorted({f.rsplit("-", 1)[0] for f in os.listdir(src) if f.endswith(".ppm")})
-order = ["aurora", "mercury", "galaxy", "tunnel", "ridgeline", "ink", "quasicrystal", "phosphor"]
+order = ["aurora", "mercury", "galaxy", "tunnel", "ridgeline", "ink", "quasicrystal", "phosphor",
+         "rainglass", "cathedral", "magnetic", "loom", "papercity", "clockwork"]
 ids.sort(key=lambda i: order.index(i) if i in order else 99)
 overview = []
 for sid in ids:

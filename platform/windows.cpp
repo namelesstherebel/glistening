@@ -165,7 +165,7 @@ void write(const std::string &s) {
         DWORD n = 0;
         if (!WriteFile(o, s.data() + off, DWORD(std::min<size_t>(s.size() - off, 1 << 20)), &n, nullptr) || !n) return;
         off += n;
-        if (quitFlag && off < s.size()) return;  // a stalled console must not hold up shutdown
+        if (quitFlag && off < s.size()) return;  // stop between completed synchronous writes
     }
 }
 

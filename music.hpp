@@ -14,21 +14,23 @@ struct Music {
     float beat = 0, downbeat = 0, drop = 0;  // accents: ~30 ms rise, tempo-scaled fall
     float beatPhase = 0, barPhase = 0, bpm = 0, conf = 0;
     bool silent = true;
-    double time = 0, flow = 0;  // flow: integral of a speed that follows the music
+    double time = 0, flow = 0, flowDelta = 0;  // flow: integral of a speed that follows the music
     std::array<float, BANDS> spectrum{};
     std::vector<float> wave = std::vector<float>(WAVE), history = std::vector<float>(BANDS * HIST);
     int histRow = 0;
     long histPos = 0;  // rows pushed so far
     long beats = 0;
 
-    // f: latest hop, beat/downbeat/drop OR-ed since the previous frame. gain: user sensitivity.
-    void update(const Features &f, const float *mono, float dt, float gain = 1) {
+    // f: latest hop with OR-ed accents. beatCount: accumulated events, or -1 to count f.beat.
+    // gain: user sensitivity.
+    void update(const Features &f, const float *mono, float dt, float gain = 1, long beatCount = -1) {
         time += dt;
         const float period = f.bpm > 0 ? 60 / f.bpm : 0.5f;
         // An event lands somewhere inside this frame: age it by at most its rise, so the
         // accent peaks on the frame it arrives even at low frame rates.
         sinceBeat_ += dt, sinceDown_ += dt, sinceDrop_ += dt;
-        if (f.beat) sinceBeat_ = std::min(dt, 0.03f), beats++;
+        if (f.beat) sinceBeat_ = std::min(dt, 0.03f);
+        beats += beatCount < 0 ? long(f.beat) : beatCount;
         if (f.downbeat) sinceDown_ = std::min(dt, 0.04f);
         if (f.drop) sinceDrop_ = std::min(dt, 0.08f);
         beat = env(sinceBeat_, 0.03f, std::max(0.08f, 0.3f * period));
@@ -47,7 +49,8 @@ struct Music {
         for (int b = 0; b < BANDS; b++) follow(spectrum[b], f.spectrum[b], 0.02f, 0.18f);
         beatPhase = f.beatPhase, barPhase = f.barPhase, bpm = f.bpm, conf = f.conf, silent = f.silent;
 
-        flow += dt * (0.35 + 0.8 * energySlow + 0.5 * bass + 0.4 * beat);
+        flowDelta = dt * (0.35 + 0.8 * energySlow + 0.5 * bass + 0.4 * beat);
+        flow += flowDelta;
 
         // History rows at a fixed 30 Hz, so its ~3 s span holds at any frame rate.
         for (histDue_ += dt; histDue_ >= 0.999f / 30; histDue_ -= 1 / 30.f) {
@@ -82,6 +85,7 @@ struct Listener {
     void feed(const float *lr, int frames, F &&onHop) {
         an.process(lr, frames, [&](const Features &f) {
             const bool beat = feat.beat || f.beat, down = feat.downbeat || f.downbeat, drop = feat.drop || f.drop, sec = feat.section || f.section;
+            pendingBeats_ += f.beat;
             feat = f;
             feat.beat = beat, feat.downbeat = down, feat.drop = drop, feat.section = sec;
             onHop(f);
@@ -89,9 +93,13 @@ struct Listener {
     }
     void frame(float dt, float gain = 1) {
         an.waveform(mono.data(), Music::WAVE);
-        music.update(feat, mono.data(), dt, gain);
+        music.update(feat, mono.data(), dt, gain, pendingBeats_);
+        pendingBeats_ = 0;
         feat.beat = feat.downbeat = feat.drop = feat.section = false;
     }
+
+private:
+    long pendingBeats_ = 0;
 };
 
 }  // namespace tv

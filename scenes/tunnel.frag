@@ -45,7 +45,7 @@ void main() {
     // Angle from the floor: bass on the floor, highs on the ceiling, mirrored.
     float ang = atan(w.x, -w.y);
     float side = floor((ang + PI) / (PI / 3.0)), sAlong = fract((ang + PI) / (PI / 3.0));
-    float seg = floor(abs(ang) / PI * 12.0);
+    float q = abs(ang) / PI * 12.0, seg = floor(q);
     float x = (seg + 0.5) / 12.0;
     float age = clamp(z / 26.0, 0.0, 1.0);
     float v = hist(x, age);
@@ -55,7 +55,7 @@ void main() {
     float lw = 0.022 + 0.012 * uBeat;
     float ring = (1.0 - smoothstep(max(lw - fw, 0.0), lw + fw, dz));
     ring = mix(ring, 2.0 * lw / RINGS, smoothstep(0.08, 0.35, fw));
-    float gap = smoothstep(0.03, 0.08, abs(fract(seg * 0.5 + 0.25 + abs(ang) / PI * 6.0) - 0.5)); // seams between segments
+    float gap = smoothstep(0.03, 0.08, min(fract(q), 1.0 - fract(q))); // seams between segments
     float rail = (1.0 - smoothstep(0.0, 0.03, min(sAlong, 1.0 - sAlong))) * 0.25;
 
     float fog = exp(-z * 0.075);

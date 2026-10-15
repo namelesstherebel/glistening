@@ -64,15 +64,17 @@ void main() {
         prevT = t;
         t += max(0.02 * t, d * 0.55);
     }
+    // All lanes evaluate the derivative, including sky lanes at a bounded point.
+    vec3 p = ro + rd * min(t, 22.0);
+    h = height(p.xz);
+    float contourWidth = fwidth(h) + 1e-4;
     if (hit) {
-        vec3 p = ro + rd * t;
-        h = height(p.xz);
         vec2 e = vec2(0.02, 0.0);
         vec3 n = normalize(vec3(height(p.xz - e.xy) - height(p.xz + e.xy), 2.0 * e.x, height(p.xz - e.yx) - height(p.xz + e.yx)));
         float dif = max(dot(n, normalize(sun + vec3(0, 0.4, 0))), 0.0), rim = pow(1.0 - max(dot(n, -rd), 0.0), 3.0);
         vec3 ground = uPal[0] * 0.6 + uPal[1] * 0.35 * dif + uPal[3] * 0.25 * rim * (0.5 + uBass);
         // Contours every 0.07 in height; finer ones carry the highs.
-        float fw = fwidth(h) + 1e-4;
+        float fw = contourWidth;
         float c1 = abs(fract(h / 0.07 + 0.5) - 0.5) * 0.07;
         float c2 = abs(fract(h / 0.0175 + 0.5) - 0.5) * 0.0175;
         float line = (1.0 - smoothstep(0.3 * fw, 1.2 * fw, c1)), fine = (1.0 - smoothstep(0.2 * fw, fw, c2)) * step(fw, 0.006);

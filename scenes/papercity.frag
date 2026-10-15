@@ -94,9 +94,15 @@ void main() {
         c *= 0.94 + 0.06 * gnoise(hp.xz * 30.0 + hp.y * 30.0);  // fibre
         float hw = 0.5 - STREET;
         vec3 e = abs(local) - vec3(hw, 0.0, hw);
-        float edge = min(abs(e.x), abs(e.z));
-        if (abs(nor.y) < 0.5) edge = min(edge, abs(local.y - hb.x));  // eave line
-        else if (hb.y > 0.0) edge = min(edge, hb.z > 0.5 ? abs(local.x) : abs(local.z));  // roof ridge
+        float edge;
+        if (abs(nor.y) < 0.5) {
+            // A wall lies on one x/z plane: measure along its tangent, never its normal.
+            float tangent = abs(nor.x) > 0.5 ? abs(e.z) : abs(e.x);
+            float roofAxis = hb.z > 0.5 ? abs(local.x) : abs(local.z);
+            float eave = hb.x + hb.y * (1.0 - roofAxis / hw);
+            edge = min(tangent, min(abs(local.y), abs(local.y - eave)));
+        } else edge = min(abs(e.x), abs(e.z));
+        if (abs(nor.y) >= 0.5 && hb.y > 0.0) edge = min(edge, hb.z > 0.5 ? abs(local.x) : abs(local.z));  // roof ridge
         float px = hitT * 1.5 / (1.9 * uRes.y);
         c += uPal[4] * (1.0 - smoothstep(px, 3.0 * px, edge)) * (0.12 + 0.2 * dif) * (0.7 + 0.8 * uBeat);  // creases flare on the beat
         // Windows wake with the mids.

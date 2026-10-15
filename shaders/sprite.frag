@@ -10,7 +10,8 @@ float erf1(float x) {
 }
 void main() {
     float across = exp(-2.0 * vLocal.y * vLocal.y);
-    float along = vHalf < 0.05 ? exp(-2.0 * vLocal.x * vLocal.x)
-                               : 0.5 * (erf1((vLocal.x + vHalf) * 1.4142) - erf1((vLocal.x - vHalf) * 1.4142)) * min(1.0, vHalf * 2.0);
+    // sqrt(PI/8)/half keeps a shrinking segment at the dot's integrated energy.
+    float along = vHalf < 0.001 ? exp(-2.0 * vLocal.x * vLocal.x)
+                               : 0.5 * (erf1((vLocal.x + vHalf) * 1.4142) - erf1((vLocal.x - vHalf) * 1.4142)) * max(1.0, 0.6266571 / vHalf);
     o = vec4(vColor.rgb * vColor.a * across * along, 0.0);
 }

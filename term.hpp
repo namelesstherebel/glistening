@@ -52,8 +52,10 @@ inline std::string kittyDelete(int id) { return "\x1b_Ga=d,d=I,i=" + std::to_str
 struct Pen {
     unsigned fg = DEF, bg = DEF;
     unsigned char attr = 0;
+    bool known = false;
     void to(std::string &o, unsigned f, unsigned b, unsigned char a) {
-        if (a != attr) {
+        if (!known || a != attr) {
+            known = true;
             o += "\x1b[0m", fg = bg = DEF, attr = 0;
             if (a & BOLD) o += "\x1b[1m";
             if (a & DIM) o += "\x1b[2m";

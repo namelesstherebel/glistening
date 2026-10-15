@@ -42,11 +42,12 @@ inline float groove(double t, double bpm, bool kicks, bool bass) {
 constexpr double SONG_BPM = 128, SONG_QUIET = 3, SONG_DROP = 3 + 16 * 60 / 128.0;
 inline float song(double t) {
     if (t < SONG_QUIET) return 0;
-    const double B = 60 / SONG_BPM, tb = std::fmod(t, B), te = std::fmod(t, B / 2), ts = std::fmod(t, B / 4);
+    const double B = 60 / SONG_BPM, elapsed = t - SONG_QUIET;
+    const double tb = std::fmod(elapsed, B), te = std::fmod(elapsed, B / 2), ts = std::fmod(elapsed, B / 4);
     float x = 0.6f * hat(te) + float(0.03 * (std::sin(2 * M_PI * 220 * t) + std::sin(2 * M_PI * 277.2 * t) + std::sin(2 * M_PI * 329.6 * t)));
     if (t >= SONG_DROP) {
         static const double arp[] = {440, 554.4, 659.3, 880, 659.3, 554.4, 493.9, 587.3};
-        const long step = long(t / (B / 4));
+        const long step = long(elapsed / (B / 4));
         x += kick(tb) + float(0.28 * std::sin(2 * M_PI * 55 * t) * (0.6 + 0.4 * std::exp(-tb / 0.2)));
         x += float(0.12 * std::exp(-ts / 0.08) * std::sin(2 * M_PI * arp[step % 8] * t));
     }

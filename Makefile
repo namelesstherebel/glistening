@@ -1,6 +1,6 @@
 CXXFLAGS = -O2 -std=c++17 -Wall
 # MilkDrop mode needs the projectM 3.x C++ API; off automatically when it is missing.
-PROJECTM ?= $(shell pkg-config --atleast-version=3 libprojectM 2>/dev/null && echo 1 || echo 0)
+PROJECTM ?= $(shell [ "$$(uname -s)" = Linux ] && pkg-config --atleast-version=3 libprojectM 2>/dev/null && echo 1 || echo 0)
 ifeq ($(PROJECTM),1)
 PM_FLAGS = -DGLISTENING_PROJECTM=1 $(shell pkg-config --cflags --libs libprojectM)
 endif
@@ -48,7 +48,7 @@ test: tests/test tests/render glistening
 	@test "$$(head -c 15 tests/smoke.ppm)" = "$$(printf 'P6\n320 180\n255')" && test $$(wc -c < tests/smoke.ppm) -eq $$((15 + 320 * 180 * 3)) \
 		&& rm -f tests/smoke.ppm && echo "DUMP SMOKE PASS"
 
-# Contact sheets of every scene, in its signature palette, into docs/ (needs python3 + Pillow: pip install -r tools/requirements.txt).
+# Contact sheets of every scene, in its signature palette, into docs/ (needs python3 + Pillow: python3 -m pip install -r tools/requirements.txt).
 sheets: tests/render
 	rm -rf docs/frames
 	./tests/render --sheets docs/frames --palette first

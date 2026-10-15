@@ -4,18 +4,20 @@ import { resolve, join, dirname } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { createHash } from 'node:crypto';
 import { spawnSync } from 'node:child_process';
+import { targets, validateNative } from './package-contents.mjs';
 
 const root = resolve(dirname(fileURLToPath(import.meta.url)), '..');
 const artifacts = resolve(process.argv[2] || 'artifacts');
 const output = resolve(process.argv[3] || 'dist');
 const pkg = JSON.parse(readFileSync(join(root, 'package.json'), 'utf8'));
-const targets = ['linux-x64', 'darwin-arm64', 'darwin-x64', 'win32-x64'];
 const hashes = {};
 const files = targets.map(target => {
   const name = target.startsWith('win32') ? 'glistening.exe' : 'glistening';
   const source = join(artifacts, target, name);
   if (!statSync(source).isFile() || statSync(source).size < 10000) throw new Error(`Missing native executable: ${source}`);
-  hashes[`${target}/${name}`] = createHash('sha256').update(readFileSync(source)).digest('hex');
+  const data = readFileSync(source);
+  validateNative(data, target);
+  hashes[`${target}/${name}`] = createHash('sha256').update(data).digest('hex');
   return { target, name, source };
 });
 mkdirSync(output, { recursive: true });

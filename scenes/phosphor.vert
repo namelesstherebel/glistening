@@ -8,16 +8,6 @@ float body(float x) {  // low-passed sample: the beam traces the body of the sou
     return (wave(x - 2.0 * e) + 2.0 * wave(x - e) + 3.0 * wave(x) + 2.0 * wave(x + e) + wave(x + 2.0 * e)) / 9.0;
 }
 
-float trigger() {  // first rising zero crossing: every frame starts on the same phase, so the rings nest
-    float prev = body(0.03);
-    for (int k = 1; k <= 48; k++) {
-        float x = 0.03 + float(k) * 0.009, s = body(x);
-        if (prev < 0.0 && s >= 0.0) return x;
-        prev = s;
-    }
-    return 0.03;
-}
-
 vec2 point(float i, float amp, float from) {
     float u = i / (uCount - 1.0), x = 1.0 - abs(2.0 * u - 1.0);  // 0..1..0: both halves read the same samples, so the ring closes
     float t = uTime * 0.5;
@@ -34,7 +24,7 @@ void main() {
     float i = float(gl_InstanceID);
     if (i > uCount - 2.0) { hide(); return; }
     float amp = smoothstep(0.02, 0.25, uEnergy + uBass);
-    float from = trigger();
+    float from = uTrigger;
     vec2 a = point(i, amp, from), b = point(i + 1.0, amp, from);
     float lenPx = length((b - a) * uRes * 0.5);
     float bright = 3.0 / (lenPx + 2.5) * (0.6 + 0.4 * amp) * (1.0 + 1.4 * uBeat * uBeat + 0.8 * uDrop + 0.3 * uHigh);  // slow beam = bright

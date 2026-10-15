@@ -3,36 +3,60 @@
 would show (pyte emulation). Kitty graphics APCs are stripped and checked.
 
 requires: pip install -r tools/requirements.txt (pyte, Pillow), plus ffmpeg.
-usage: ptyrun.py COLSxROWS OUT.png [--kitty] [-- key-script]
+usage: ptyrun.py COLSxROWS OUT.png [--kitty] [--binary PATH] [--render PATH] [-- key-script]
+POSIX only (pty, fcntl, termios). Accepts Make or CMake build outputs.
 key script: whitespace-separated steps, e.g. "wait:3 tab wait:1 down enter wait:2 ?"
 Audio: $SONG (f32le stereo 44.1k); by default the render gate's fixture track,
 written by `tests/render --song` into a temporary directory. Config goes there too
 unless $XDG_CONFIG_HOME is set.
 """
-import os, pty, re, select, shlex, struct, subprocess, sys, tempfile, time, fcntl, termios, base64
+import argparse, os, re, select, shlex, struct, subprocess, sys, tempfile, time, base64
+from pathlib import Path
+if os.name != "posix":
+    sys.exit("ptyrun: requires a POSIX host (pty, fcntl, termios)")
+import pty, fcntl, termios, signal
+from fonts import terminal_fonts
 import pyte
-from PIL import Image, ImageDraw, ImageFont
+from PIL import Image, ImageDraw
 
-size, out = sys.argv[1], sys.argv[2]
-cols, rows = map(int, size.split("x"))
-kitty = "--kitty" in sys.argv
-script = sys.argv[sys.argv.index("--") + 1:] if "--" in sys.argv else ["wait:4"]
-work = tempfile.mkdtemp(prefix="glistening-pty-")
+parser = argparse.ArgumentParser(description=__doc__)
+parser.add_argument("size")
+parser.add_argument("out")
+parser.add_argument("--kitty", action="store_true")
+parser.add_argument("--binary")
+parser.add_argument("--render")
+argv = sys.argv[1:]
+split = argv.index("--") if "--" in argv else len(argv)
+options = parser.parse_args(argv[:split])
+script = argv[split + 1:] if split < len(argv) else ["wait:4"]
+cols, rows = map(int, options.size.split("x"))
+out, kitty = options.out, options.kitty
+
+def executable(explicit, candidates, label):
+    for candidate in ([explicit] if explicit else candidates):
+        if os.path.isfile(candidate) and os.access(candidate, os.X_OK):
+            return str(Path(candidate).resolve())
+    parser.error(f"cannot find {label}; build it or pass --{label} PATH")
+
+binary = executable(options.binary, ["./glistening", "build/glistening", "build/Release/glistening"], "binary")
+work_dir = tempfile.TemporaryDirectory(prefix="glistening-pty-")
+work = work_dir.name
 song = os.environ.get("SONG")
 if not song:
     song = os.path.join(work, "song.f32")
-    subprocess.run(["make", "-s", "tests/render"], check=True)  # not built by the default target
-    subprocess.run(["./tests/render", "--song", song], check=True, stdout=subprocess.DEVNULL)
+    render = executable(options.render, ["tests/render", "build/glistening_render", "build/Release/glistening_render"], "render")
+    subprocess.run([render, "--song", song], check=True, stdout=subprocess.DEVNULL)
 if not os.path.isfile(song):
     sys.exit(f"ptyrun: no audio fixture at {song}")
 envv = dict(os.environ, TERM="xterm-256color", VIZ_OUTPUT="kitty" if kitty else "blocks", VIZ_MEDIUM="direct",
             XDG_CONFIG_HOME=os.environ.get("XDG_CONFIG_HOME", work),
             VIZ_PCM_CMD=f"exec ffmpeg -loglevel error -re -f f32le -ar 44100 -ac 2 -i {shlex.quote(song)} -f f32le -")
+font, bold = terminal_fonts(14)
 pid, fd = pty.fork()
 if pid == 0:
-    os.execve("./glistening", ["./glistening"] + os.environ.get("ARGS", "").split(), envv)
+    os.execve(binary, [binary] + shlex.split(os.environ.get("ARGS", "")), envv)
 fcntl.ioctl(fd, termios.TIOCSWINSZ, struct.pack("HHHH", rows, cols, cols * 10, rows * 20))
-os.kill(pid, 28)  # SIGWINCH
+os.kill(pid, signal.SIGWINCH)  # SIGWINCH
 
 screen = pyte.Screen(cols, rows)
 stream = pyte.ByteStream(screen)
@@ -101,7 +125,7 @@ for step in script:
         cols, rows = map(int, step[7:].split("x"))
         fcntl.ioctl(fd, termios.TIOCSWINSZ, struct.pack("HHHH", rows, cols, cols * 10, rows * 20))
         screen.resize(rows, cols)
-        os.kill(pid, 28)
+        os.kill(pid, signal.SIGWINCH)
         pump(1.0)
         continue
     key = {"tab": "\t", "enter": "\r", "esc": "\x1b", "up": "\x1b[A", "down": "\x1b[B", "left": "\x1b[D", "right": "\x1b[C",
@@ -113,8 +137,6 @@ for step in script:
 cw, ch = 10, 20
 img = Image.new("RGB", (cols * cw, rows * ch), (0, 0, 0))
 d = ImageDraw.Draw(img)
-font = ImageFont.truetype("/usr/share/fonts/truetype/dejavu/DejaVuSansMono.ttf", 14)
-bold = ImageFont.truetype("/usr/share/fonts/truetype/dejavu/DejaVuSansMono-Bold.ttf", 14)
 def rgb(c, default):
     if c in ("default", None) or not re.fullmatch(r"[0-9a-fA-F]{6}", str(c)):
         return default
