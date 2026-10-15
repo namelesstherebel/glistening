@@ -308,7 +308,9 @@ bool Process::start(const std::vector<std::string> &argv, bool blocking) {
     };
     std::string path = findProgram(argv[0]);
     // A .bat/.cmd shim earlier on PATH must not hide the executable later on it.
-    if (!runnable(path)) path = findProgram(argv[0] + ".exe");
+    // Only for a bare name: an explicit "tool.cmd" never becomes "tool.cmd.exe".
+    const size_t base = argv[0].find_last_of("\\/:") + 1;
+    if (!runnable(path) && argv[0].find('.', base) == std::string::npos) path = findProgram(argv[0] + ".exe");
     if (!runnable(path)) return false;
     std::wstring cmd = quoteArg(wide(path));
     for (size_t i = 1; i < argv.size(); i++) cmd += L" " + quoteArg(wide(argv[i]));

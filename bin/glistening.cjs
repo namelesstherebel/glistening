@@ -2,7 +2,7 @@
 'use strict';
 const path = require('node:path');
 const fs = require('node:fs');
-const { spawnSync } = require('node:child_process');
+const { spawn } = require('node:child_process');
 
 function binaryPath(root, platform = process.platform, arch = process.arch) {
   const target = `${platform}-${arch}`;
@@ -12,25 +12,32 @@ function binaryPath(root, platform = process.platform, arch = process.arch) {
   return path.join(root, 'prebuilt', target, platform === 'win32' ? 'glistening.exe' : 'glistening');
 }
 
-function run(root, args) {
+async function run(root, args) {
   if (args[0] === 'setup') return require('./setup.cjs').setup(args.slice(1));
   const binary = binaryPath(root);
   if (!fs.existsSync(binary)) throw new Error('Native binary missing. Install a release bundle from https://github.com/namelesstherebel/glistening/releases');
-  // The terminal sends Ctrl+C (and Ctrl+\) to the child too. Ignore it here so
-  // the launcher outlives the child's own shutdown, which restores the terminal.
-  const ignore = () => {};
-  process.on('SIGINT', ignore);
-  process.on('SIGQUIT', ignore);
-  let result;
-  try { result = spawnSync(binary, args, { stdio: 'inherit', windowsHide: false }); }
-  finally { process.off('SIGINT', ignore); process.off('SIGQUIT', ignore); }
-  if (result.error) throw result.error;
-  if (result.signal) return result.signal === 'SIGINT' ? 130 : 1;
-  return result.status ?? 1;
+  const child = spawn(binary, args, { stdio: 'inherit', windowsHide: false });
+  // The child quits cleanly on these, so the launcher waits for it: its shutdown
+  // restores the terminal. Ctrl+C reaches the child from the terminal too; a
+  // signal sent to the launcher alone is passed on. Windows delivers console
+  // events (Ctrl+C, Ctrl+Break, close) to both processes, and kill() there
+  // would end the child abruptly.
+  const signals = ['SIGINT', 'SIGTERM', 'SIGHUP', 'SIGBREAK'];
+  const relay = (signal) => { if (process.platform !== 'win32') child.kill(signal); };
+  for (const signal of signals) process.on(signal, relay);
+  try {
+    return await new Promise((resolve, reject) => {
+      child.on('error', reject);
+      child.on('exit', (status, signal) => resolve(signal ? (signal === 'SIGINT' ? 130 : 1) : status ?? 1));
+    });
+  } finally {
+    for (const signal of signals) process.off(signal, relay);
+  }
 }
 
 if (require.main === module) {
-  try { process.exitCode = run(path.resolve(__dirname, '..'), process.argv.slice(2)); }
-  catch (error) { console.error(`glistening: ${error.message}`); process.exitCode = 1; }
+  run(path.resolve(__dirname, '..'), process.argv.slice(2)).then(
+    (status) => { process.exitCode = status; },
+    (error) => { console.error(`glistening: ${error.message}`); process.exitCode = 1; });
 }
 module.exports = { binaryPath, run };

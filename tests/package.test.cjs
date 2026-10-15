@@ -46,32 +46,45 @@ test('launcher preserves paths, shell metacharacters and native exit status', { 
     writeFileSync(binary, '#!/bin/sh\nprintf "%s\\n" "$1"\nexit 17\n', { mode: 0o755 });
     const launcher = path.resolve(__dirname, '../bin/glistening.cjs');
     const input = 'a song; $(do-not-execute) "quote"';
-    const code = 'process.exitCode = require(process.argv[1]).run(process.argv[2], [process.argv[3]])';
+    const code = 'require(process.argv[1]).run(process.argv[2], [process.argv[3]]).then((status) => { process.exitCode = status; })';
     const result = spawnSync(process.execPath, ['-e', code, launcher, root, input], { encoding: 'utf8' });
     assert.equal(result.status, 17);
     assert.equal(result.stdout, input + '\n');
   } finally { rmSync(root, { recursive: true, force: true }); }
 });
 
-test('Ctrl+C waits for the native child to shut down', { skip: process.platform === 'win32' || !hostSupported }, async () => {
-  const root = mkdtempSync(path.join(tmpdir(), 'glistening-sigint-'));
-  try {
-    const binary = binaryPath(root);
-    mkdirSync(path.dirname(binary), { recursive: true });
-    // Like the real child: traps SIGINT, cleans up for a moment, then exits.
-    writeFileSync(binary, '#!/bin/sh\ntrap \'sleep 0.3; echo cleaned; exit 0\' INT\necho ready\nwhile :; do sleep 0.05; done\n', { mode: 0o755 });
-    const code = 'process.exitCode = require(process.argv[1]).run(process.argv[2], [])';
-    // Its own process group stands in for the terminal's foreground group.
-    const launcher = spawn(process.execPath, ['-e', code, path.resolve(__dirname, '../bin/glistening.cjs'), root], { detached: true });
-    let out = '';
-    const exited = new Promise((resolve) => launcher.on('close', (status, signal) => resolve({ status, signal, out })));
-    launcher.stdout.on('data', (d) => {
-      out += d;
-      if (out === 'ready\n') process.kill(-launcher.pid, 'SIGINT');
-    });
-    const result = await exited;
-    assert.equal(result.signal, null);
-    assert.equal(result.status, 0);
-    assert.equal(result.out, 'ready\ncleaned\n');
-  } finally { rmSync(root, { recursive: true, force: true }); }
-});
+// SIGINT to the terminal's foreground group (Ctrl+C), or to the launcher alone
+// (kill, a supervisor): either way the child shuts down cleanly and the
+// launcher waits for it.
+for (const target of ['process group', 'launcher alone']) {
+  test(`SIGINT to the ${target} waits for the native child to shut down`, { skip: process.platform === 'win32' || !hostSupported }, async () => {
+    const root = mkdtempSync(path.join(tmpdir(), 'glistening-sigint-'));
+    let launcher;
+    try {
+      const binary = binaryPath(root);
+      mkdirSync(path.dirname(binary), { recursive: true });
+      // Like the real child: traps SIGINT, cleans up for a moment, then exits.
+      writeFileSync(binary, '#!/bin/sh\ntrap \'sleep 0.3; echo cleaned; exit 0\' INT\necho ready\nwhile :; do sleep 0.05; done\n', { mode: 0o755 });
+      const code = 'require(process.argv[1]).run(process.argv[2], []).then((status) => { process.exitCode = status; })';
+      // Its own process group stands in for the terminal's foreground group.
+      launcher = spawn(process.execPath, ['-e', code, path.resolve(__dirname, '../bin/glistening.cjs'), root], { detached: true });
+      let out = '';
+      const closed = new Promise((resolve) => launcher.on('close', (status, signal) => resolve({ status, signal, out })));
+      launcher.stdout.on('data', (d) => {
+        out += d;
+        if (out === 'ready\n') process.kill(target === 'launcher alone' ? launcher.pid : -launcher.pid, 'SIGINT');
+      });
+      let watchdog;
+      const timedOut = new Promise((resolve) => { watchdog = setTimeout(() => resolve('timeout'), 10000); });
+      const result = await Promise.race([closed, timedOut]);
+      clearTimeout(watchdog);
+      assert.notEqual(result, 'timeout', `no exit within 10 s; output so far: ${JSON.stringify(out)}`);
+      assert.equal(result.signal, null);
+      assert.equal(result.status, 0);
+      assert.equal(result.out, 'ready\ncleaned\n');
+    } finally {
+      try { process.kill(-launcher.pid, 'SIGKILL'); } catch {}  // nothing left behind, even on failure
+      rmSync(root, { recursive: true, force: true });
+    }
+  });
+}
