@@ -766,6 +766,7 @@ int main(int argc, char **argv) {
     double eofAt = -1;
     bool eofChecked = false;
     auto sourceFailed = [&] {
+        for (auto &n : shmNames) sys::shmUnlink(n.first);
         if (pcm.cap) fprintf(stderr, "glistening: system audio capture failed: %s\n", pcm.capErr.c_str());
         else if (!o.file.empty()) fprintf(stderr, "glistening: ffmpeg could not decode %s (exit status %d)\n", o.file.c_str(), pcm.proc.status());
         else fprintf(stderr, "glistening: audio source failed (exit status %d): %s\n", pcm.proc.status(), pcmWhat.c_str());

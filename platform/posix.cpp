@@ -104,6 +104,7 @@ std::string enterRaw() {
     if (tcgetattr(STDIN_FILENO, &g_tio) < 0) return std::string("cannot read terminal settings: ") + strerror(errno);
     termios raw = g_tio;
     raw.c_lflag &= ~(ICANON | ECHO);
+    raw.c_iflag &= ~(IXON | IXOFF);  // Ctrl-S/Ctrl-Q are input, not terminal flow control
     raw.c_cc[VMIN] = 0, raw.c_cc[VTIME] = 0;
     raw.c_cc[VQUIT] = raw.c_cc[VSUSP] = _POSIX_VDISABLE;  // preserve Ctrl-C; other signal keys become ordinary input
 #ifdef VDSUSP

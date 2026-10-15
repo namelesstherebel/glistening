@@ -162,7 +162,7 @@ private:
             return;
         }
         std::vector<float> dev, st, out;
-        auto lastCheck = Clock::now(), covered = lastCheck;  // covered: audio (or silence) delivered up to here
+        auto lastCheck = Clock::now(), covered = lastCheck, nextRetry = lastCheck;  // covered: audio (or silence) delivered up to here
         auto push = [&](const float *p, int n) { ring_.push(p, size_t(n)); };
         while (!stop_) {
             Sleep(10);
@@ -183,10 +183,14 @@ private:
             }
             if (FAILED(h)) lost = true;  // AUDCLNT_E_DEVICE_INVALIDATED and friends
             const auto now = Clock::now();
-            if (now - lastCheck > std::chrono::seconds(2)) lastCheck = now, lost |= defaultChanged(id_);
-            if (lost && FAILED(reopen())) {  // retried on the next pass; silence meanwhile
-                std::lock_guard<std::mutex> l(mu_);
-                desc_ = "WASAPI loopback: no default output device (retrying)";
+            if (!lost && now - lastCheck > std::chrono::seconds(2)) lastCheck = now, lost = defaultChanged(id_);
+            if (lost && now >= nextRetry) {
+                h = reopen();
+                nextRetry = Clock::now() + (FAILED(h) ? std::chrono::milliseconds(500) : std::chrono::milliseconds(0));
+                if (FAILED(h)) {
+                    std::lock_guard<std::mutex> l(mu_);
+                    desc_ = "WASAPI loopback: no default output device (retrying)";
+                }
             }
             // Nothing playing: no packets. Keep the stream continuous so the visuals decay.
             if (now - covered > std::chrono::milliseconds(100)) {
@@ -257,7 +261,7 @@ private:
             if (SUCCEEDED(co)) CoUninitialize();
             return;
         }
-        auto lastCheck = Clock::now();
+        auto lastCheck = Clock::now(), nextRetry = lastCheck;
         while (!stop_) {
             Sleep(5);
             bool lost = !render_;
@@ -274,8 +278,11 @@ private:
             }
             if (FAILED(h)) lost = true;
             const auto now = Clock::now();
-            if (now - lastCheck > std::chrono::seconds(2)) lastCheck = now, lost |= defaultChanged(id_);
-            if (lost && FAILED(reopen())) close();
+            if (!lost && now - lastCheck > std::chrono::seconds(2)) lastCheck = now, lost = defaultChanged(id_);
+            if (lost && now >= nextRetry) {
+                h = reopen();
+                nextRetry = Clock::now() + (FAILED(h) ? std::chrono::milliseconds(500) : std::chrono::milliseconds(0));
+            }
         }
         close();
         if (SUCCEEDED(co)) CoUninitialize();
