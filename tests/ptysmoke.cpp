@@ -52,7 +52,7 @@ int main(int argc, char **argv) {
     const int code = run(argv[1], mode, out, secs);
     printf("glistening exited %d after %.1f s, %zu bytes of output\n", code, secs, out.size());
     check(code == 0, "exits cleanly");
-    check(code >= 0 && secs < 30, "quits on the q key (well before --seconds 40)");
+    check(code >= 0 && secs < 10, "quits on the q key before the 18.5 s test track can end");
 #ifdef _WIN32
     // ConPTY re-renders the screen and swallows APC (kitty) sequences: only the text survives.
     if (mode == "blocks") check(out.find("\xe2\x96\x80") != std::string::npos, "draws half-block frames");
@@ -111,8 +111,8 @@ static int run(const std::string &exe, const std::string &mode, std::string &out
     Sleep(1000);
     ResizePseudoConsole(pc, COORD{100, 30});
     Sleep(1500);
-    DWORD w;
-    WriteFile(inW, "q", 1, &w, nullptr);
+    DWORD w = 0;
+    const bool sent = WriteFile(inW, "q", 1, &w, nullptr) && w == 1;
     DWORD code = 0;
     const bool done = WaitForSingleObject(pi.hProcess, 60000) == WAIT_OBJECT_0;
     secs = std::chrono::duration<double>(Clock::now() - t0).count();
@@ -123,7 +123,7 @@ static int run(const std::string &exe, const std::string &mode, std::string &out
     reader.join();
     CloseHandle(inW), CloseHandle(outR);
     DeleteProcThreadAttributeList(si.lpAttributeList);
-    return done ? int(code) : -1;
+    return !sent ? -3 : done ? int(code) : -1;
 }
 #else
 /** Launch the terminal fixture, resize it, send quit, and capture output through child exit. */
@@ -169,12 +169,12 @@ static int run(const std::string &exe, const std::string &mode, std::string &out
             for (ssize_t n; poll(&p, 1, 100) > 0 && (n = read(fd, b, sizeof b)) > 0;) out.append(b, size_t(n));
             secs = std::chrono::duration<double>(Clock::now() - t0).count();
             close(fd);
-            return WIFEXITED(status) ? WEXITSTATUS(status) : 128 + WTERMSIG(status);
+            return !sent ? -3 : WIFEXITED(status) ? WEXITSTATUS(status) : 128 + WTERMSIG(status);
         }
     }
     waitpid(pid, &status, 0);
     secs = std::chrono::duration<double>(Clock::now() - t0).count();
     close(fd);
-    return WIFEXITED(status) ? WEXITSTATUS(status) : 128 + WTERMSIG(status);
+    return !sent ? -3 : WIFEXITED(status) ? WEXITSTATUS(status) : 128 + WTERMSIG(status);
 }
 #endif

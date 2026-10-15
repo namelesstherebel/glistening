@@ -2,6 +2,7 @@
 'use strict';
 const path = require('node:path');
 const fs = require('node:fs');
+const { constants } = require('node:os');
 const { spawn } = require('node:child_process');
 
 /** Resolve a supported native bundle path, rejecting unsupported platform/architecture pairs. */
@@ -30,7 +31,7 @@ async function run(root, args) {
   try {
     return await new Promise((resolve, reject) => {
       child.on('error', reject);
-      child.on('exit', (status, signal) => resolve(signal ? (signal === 'SIGINT' ? 130 : 1) : status ?? 1));
+      child.on('exit', (status, signal) => resolve(signal ? (constants.signals[signal] ? 128 + constants.signals[signal] : 1) : status ?? 1));
     });
   } finally {
     for (const signal of signals) process.off(signal, relay);

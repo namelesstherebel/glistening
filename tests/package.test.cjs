@@ -88,3 +88,20 @@ for (const target of ['process group', 'launcher alone']) {
     }
   });
 }
+
+// A child terminated by a signal has no numeric status; preserve its shell status.
+for (const [signal, expected] of [['TERM', 143], ['HUP', 129]]) {
+  test(`launcher preserves native SIG${signal} termination status`, { skip: process.platform === 'win32' || !hostSupported }, () => {
+    const root = mkdtempSync(path.join(tmpdir(), 'glistening-signal-status-'));
+    try {
+      const binary = binaryPath(root);
+      mkdirSync(path.dirname(binary), { recursive: true });
+      writeFileSync(binary, `#!/bin/sh\nkill -${signal} "$$"\n`, { mode: 0o755 });
+      const code = 'require(process.argv[1]).run(process.argv[2], []).then((status) => { process.exitCode = status; })';
+      const result = spawnSync(process.execPath, ['-e', code, path.resolve(__dirname, '../bin/glistening.cjs'), root], { encoding: 'utf8', timeout: 5000 });
+      assert.ifError(result.error);
+      assert.equal(result.signal, null);
+      assert.equal(result.status, expected, result.stderr);
+    } finally { rmSync(root, { recursive: true, force: true }); }
+  });
+}
