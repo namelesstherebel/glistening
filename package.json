@@ -11,6 +11,7 @@
   "files": ["bin/", "prebuilt/", "LICENSE"],
   "engines": { "node": ">=20" },
   "scripts": {
+    "prepublishOnly": "node scripts/check-publish.mjs",
     "test": "node --test tests/package.test.cjs",
     "test:install": "node scripts/check-installed.mjs"
   }
