@@ -13,7 +13,8 @@ Release-readiness runbook for `glistening` 0.1.0 (Node >=20). **Nothing has been
 
 - A bundle needs four genuine, freshly built native executables. Linux and Windows binaries from earlier local builds were not verified against fresh source. Do not use them.
 - npm registry lookup for `glistening` returned 404, and `npm whoami` returned ENEEDAUTH. The owner must choose and authorize an existing account, version and payload. Do not create credentials or guess a namespace.
-- Automatic review spend is unconfirmed. CodeRabbit automatic review is disabled. The Pullfrog workflow references optional provider secrets, but `gh secret list` returned no names, so cost and billing cannot be inferred. No automatic review has been triggered. Use a normal branch and draft PR only once this is established as safe.
+- Review billing is no longer an open hold for draft PR publication. The signed-in Pullfrog console (https://pullfrog.com/console/namelesstherebel/glistening, verified 27 Oct 2026) shows: provider ChatGPT (Codex), an existing connected subscription inherited from the account; model `openai/gpt-6.1-sol` (High); account plan Free; personal BYOK API keys unconfigured; no Router used. Draft PRs checkbox OFF, auto-merge OFF, Fix CI on non-Pullfrog PRs OFF, and no active runs. A draft PR therefore does not trigger Pullfrog review, automatic CodeRabbit is disabled, and no settings were changed. Normal native/semgrep CI may run. The draft review check is expected to be missing. An actual review verdict is still required before merge or release. No new credit spending or API fallback is authorized.
+- Historical Pullfrog review run 39801015273 (job 119901382450) reviewed PR 6 head `fef00e2` using Sol. It does not cover any newer head.
 
 ## Targets
 
@@ -48,9 +49,10 @@ Release-readiness runbook for `glistening` 0.1.0 (Node >=20). **Nothing has been
 
 - Exact approved source commit and version.
 - Applicable CI passing, plus a review of the current head by the trusted Pullfrog app (1768019).
-- Owner visual acceptance.
+- Owner visual acceptance, as the repository rules already require. No additional generic owner release approval gate applies.
+- Proposed version 0.1.0 from the exact source, after CI, review and artifact checks, is authorized as the download goal.
 - No merge or deploy bypass.
-- Owner-selected npm account.
+- npm account authentication is absent (ENEEDAUTH). This remains a separate npm publication blocker and needs an owner-selected account.
 
 ## Binary archive requirements
 

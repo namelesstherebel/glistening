@@ -146,7 +146,7 @@ Settings are saved to `~/.config/glistening/config` (macOS/Linux) or `%APPDATA%\
 
 ## Contributing
 
-Please read [CONTRIBUTING](CONTRIBUTING.md) and the [architecture notes](docs/architecture.md). Issues are for bugs only. Feature ideas belong in Discussions, which are currently disabled pending activation.
+Please read [CONTRIBUTING](CONTRIBUTING.md) and the [architecture notes](docs/architecture.md). Issues are for bugs only. Feature ideas belong in [Discussions → Ideas](https://github.com/namelesstherebel/glistening/discussions/categories/ideas).
 
 Pull requests are welcome but merged at the maintainer's discretion, and no hard feelings if one isn't. New visualizer styles are especially encouraged.
 

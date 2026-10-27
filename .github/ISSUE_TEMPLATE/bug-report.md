@@ -1,12 +1,12 @@
 ---
 name: Bug report
-about: Report a reproducible bug in gListening. Feature requests belong in Discussions once enabled.
+about: Report a reproducible bug in gListening. Feature requests belong in Discussions (Ideas).
 title: "[Bug] "
 labels: bug
 assignees: ""
 ---
 
-<!-- Issues are for bugs only. Feature requests go in GitHub Discussions, which is pending activation. Please do not post secrets, private songs or personal paths. -->
+<!-- Issues are for bugs only. Feature requests go in GitHub Discussions: https://github.com/namelesstherebel/glistening/discussions/categories/ideas Please do not post secrets, private songs or personal paths. -->
 
 ## What happened
 

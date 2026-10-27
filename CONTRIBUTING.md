@@ -5,7 +5,7 @@ Thanks for your interest. gListening renders music-reactive visuals in the termi
 ## Ways to help
 
 - **Bugs:** open an Issue using the bug report template. Issues are for bugs only.
-- **Feature requests and ideas:** these belong in GitHub Discussions. Discussions is **not enabled yet** (no categories exist), so this is pending activation. Until then, please don't file feature requests as Issues. Check back once Discussions is turned on.
+- **Feature requests and ideas:** these belong in GitHub Discussions, in the [Ideas category](https://github.com/namelesstherebel/glistening/discussions/categories/ideas). Please don't file feature requests as Issues.
 - **Pull requests:** welcome. They are reviewed on merit, at the maintainer's discretion and when time allows. There is no review deadline or guaranteed response time.
 - **New visualizer styles:** we explicitly encourage them. A new scene is one of the best contributions you can make (see [Adding a scene](#adding-a-scene)).
 

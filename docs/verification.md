@@ -15,16 +15,17 @@ Evidence from 27 Oct 2026 on macOS, Apple Silicon (Apple M1 Ultra), OpenGL 4.1, 
 
 ## Not verified
 
-- Other three operating systems were not tested locally. Prior remote CI at `fef00e2`: Linux, Windows and Intel macOS PASS; macOS Arm FAIL (bundle skipped).
-- Live audio: a CoreAudio tap with a default AudioQueue diagnostic received 0 frames and reported that CoreAudio stopped delivering system audio. The stalled run was stopped. The cause is unproven. Human consent and output-routing verification are needed; no privilege was granted. No audio capture is guaranteed.
+- The other three platform targets were not tested locally. Prior remote CI at `fef00e2`: Linux, Windows and Intel macOS PASS; macOS Arm FAIL (bundle skipped).
+- Live audio: the latest retest again received the same 0 of 132300 frames over 3 s after the consent wait. A sample of PID 19253 shows a stalled teardown on the main thread: `TapCapture::~TapCapture` -> `AudioDeviceDestroyIOProcID_mac_imp` -> `HALC_ProxyIOContext::_TellServerAboutStreamUsage` -> `mach_msg`. The process eventually exited with code 1. The default output (Mac Studio Speakers, 48 kHz) is valid and the tap matches it. No consent was accepted because CUA access to UserNotificationCenter is forbidden, and no TCC changes were made. The OS attributes the gListening prompt to the hosting app, ChatGPT (com.openai.codex). The smallest owner action is to review and, if appropriate, allow that system-audio OS prompt; no driver install is needed. The root cause is not asserted (permission denial is not proven); the authorization result is awaited. Capture reactivity is not claimed, and live capture stays unverified.
 - npm registry returned 404/ENEEDAUTH. Nothing was published or released.
-- Discussions are disabled and have no categories. `gh repo edit --enable-discussions` was denied by auto-review as insufficient setting authorization. The command did not execute and was not retried.
-- Automatic CodeRabbit is disabled. Pullfrog (trusted app 1768019) is required by active ruleset 25354593. Zero repository Actions secrets does not establish provider billing.
+- Discussions were enabled on 27 Oct 2026 after explicit owner approval, with the categories Announcements, General, Ideas, Polls, Q&A and Show and Tell. The Ideas URL was verified: https://github.com/namelesstherebel/glistening/discussions/categories/ideas. An earlier denial of the enable command is historic and superseded by the authorized activation.
+- Automatic CodeRabbit is disabled. Pullfrog (trusted app 1768019) is required by active ruleset 25354593. Historical review run 39801015273 (job 119901382450) reviewed PR 6 head `fef00e2` using Sol and does not cover a new head.
+- Pullfrog console, verified signed in on 27 Oct 2026 (https://pullfrog.com/console/namelesstherebel/glistening): provider ChatGPT (Codex), existing connected subscription inherited from the account; model `openai/gpt-6.1-sol` High; account Free; personal BYOK API keys unconfigured; no Router. Draft PRs OFF, auto-merge OFF, Fix CI on non-Pullfrog PRs OFF, no active runs. No settings were changed.
 
 ## Publication hold
 
-Publication stays held until no-new-spend is verified, current-head review and CI pass, and the owner chooses the exact source, version and artifacts. The license remains GPL-3.0-only. No bot commands, merges, workflow or review-setting changes, paid Extra or credentials were used. The host independently verifies the final integration after apply.
+The earlier unknown billing hold is resolved for draft PR publication: a draft PR does not trigger Pullfrog review and automatic CodeRabbit is disabled. Normal native/semgrep CI may run, and the draft review check is expected to be missing. No new credit spending or API fallback is authorized. An actual review verdict on the current head and passing CI are still required before merge or release. Proposed version 0.1.0 from the exact source, after CI, review and artifact checks, is the authorized download goal; no further generic owner release approval applies. Missing npm account authentication remains a separate npm publication blocker. The license remains GPL-3.0-only. No bot commands, merges, workflow or review-setting changes, paid Extra or credentials were used. The host independently verifies the final integration after apply.
 
 ## Owner choices retained
 
-Bug-only Issues; Discussions for features (pending); pull requests at the maintainer's discretion; new styles encouraged; Ghostty and Kitty on macOS/Linux.
+Bug-only Issues; Discussions (Ideas) for features; pull requests at the maintainer's discretion; new styles encouraged; Ghostty and Kitty on macOS/Linux.
