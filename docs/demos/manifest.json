@@ -1,0 +1,1300 @@
+{
+  "assets": {
+    "aurora.jpg": {
+      "bytes": 16339,
+      "sha256": "974a495b18661d043929b019e9583108315717df06ba571260fcb6cffaacf8a8"
+    },
+    "aurora.mp4": {
+      "bytes": 207774,
+      "probe": {
+        "format": {
+          "duration": "6.000000"
+        },
+        "programs": [],
+        "stream_groups": [],
+        "streams": [
+          {
+            "avg_frame_rate": "24/1",
+            "codec_name": "h264",
+            "codec_type": "video",
+            "height": 360,
+            "nb_frames": "144",
+            "pix_fmt": "yuv420p",
+            "r_frame_rate": "24/1",
+            "width": 640
+          },
+          {
+            "avg_frame_rate": "0/0",
+            "codec_name": "aac",
+            "codec_type": "audio",
+            "nb_frames": "260",
+            "r_frame_rate": "0/0"
+          }
+        ]
+      },
+      "sha256": "f266164ef1c88cb92b4de74a4917287c75d24cc729a0a76bcaa78c14ea7a281d"
+    },
+    "cathedral.jpg": {
+      "bytes": 16036,
+      "sha256": "547b85ac182fe555dd0f0966a60b07359c564b45afb18e1f0e11ce77ae799539"
+    },
+    "cathedral.mp4": {
+      "bytes": 159055,
+      "probe": {
+        "format": {
+          "duration": "6.000000"
+        },
+        "programs": [],
+        "stream_groups": [],
+        "streams": [
+          {
+            "avg_frame_rate": "24/1",
+            "codec_name": "h264",
+            "codec_type": "video",
+            "height": 360,
+            "nb_frames": "144",
+            "pix_fmt": "yuv420p",
+            "r_frame_rate": "24/1",
+            "width": 640
+          },
+          {
+            "avg_frame_rate": "0/0",
+            "codec_name": "aac",
+            "codec_type": "audio",
+            "nb_frames": "260",
+            "r_frame_rate": "0/0"
+          }
+        ]
+      },
+      "sha256": "bac0aec57bdc45be8807f92d8a0b318dbea44898cfe841db50f8d91f0d20242e"
+    },
+    "clockwork.jpg": {
+      "bytes": 20575,
+      "sha256": "ee2cc1fd75199d8026f5c4c87ed0881c52e7a90c2ef612fc2b50a4b996250485"
+    },
+    "clockwork.mp4": {
+      "bytes": 208489,
+      "probe": {
+        "format": {
+          "duration": "6.000000"
+        },
+        "programs": [],
+        "stream_groups": [],
+        "streams": [
+          {
+            "avg_frame_rate": "24/1",
+            "codec_name": "h264",
+            "codec_type": "video",
+            "height": 360,
+            "nb_frames": "144",
+            "pix_fmt": "yuv420p",
+            "r_frame_rate": "24/1",
+            "width": 640
+          },
+          {
+            "avg_frame_rate": "0/0",
+            "codec_name": "aac",
+            "codec_type": "audio",
+            "nb_frames": "260",
+            "r_frame_rate": "0/0"
+          }
+        ]
+      },
+      "sha256": "2d7e36b9fb5c497aa367f349312ba2af238ecdf2bb5666a95f451853aec52f9c"
+    },
+    "demo-audio.wav": {
+      "bytes": 1058444,
+      "sha256": "94466dab4474eb288adf9d61947d6a838137a5140d4063fabc0fade7b4d4f274"
+    },
+    "galaxy.jpg": {
+      "bytes": 17188,
+      "sha256": "5375bbcd5d340c4526cf7766592317867529fc0a0abc25a1005bad0e1496dccb"
+    },
+    "galaxy.mp4": {
+      "bytes": 215689,
+      "probe": {
+        "format": {
+          "duration": "6.000000"
+        },
+        "programs": [],
+        "stream_groups": [],
+        "streams": [
+          {
+            "avg_frame_rate": "24/1",
+            "codec_name": "h264",
+            "codec_type": "video",
+            "height": 360,
+            "nb_frames": "144",
+            "pix_fmt": "yuv420p",
+            "r_frame_rate": "24/1",
+            "width": 640
+          },
+          {
+            "avg_frame_rate": "0/0",
+            "codec_name": "aac",
+            "codec_type": "audio",
+            "nb_frames": "260",
+            "r_frame_rate": "0/0"
+          }
+        ]
+      },
+      "sha256": "a0a0a0b799a55d41802f096ce91a8cec1cdb66cc677e0c83aaef5a9814125a60"
+    },
+    "ink.jpg": {
+      "bytes": 7045,
+      "sha256": "ad354f24e1783d5db0148e65a680ffd196697a89e1f14c6eb8700d073d55adfe"
+    },
+    "ink.mp4": {
+      "bytes": 126776,
+      "probe": {
+        "format": {
+          "duration": "6.000000"
+        },
+        "programs": [],
+        "stream_groups": [],
+        "streams": [
+          {
+            "avg_frame_rate": "24/1",
+            "codec_name": "h264",
+            "codec_type": "video",
+            "height": 360,
+            "nb_frames": "144",
+            "pix_fmt": "yuv420p",
+            "r_frame_rate": "24/1",
+            "width": 640
+          },
+          {
+            "avg_frame_rate": "0/0",
+            "codec_name": "aac",
+            "codec_type": "audio",
+            "nb_frames": "260",
+            "r_frame_rate": "0/0"
+          }
+        ]
+      },
+      "sha256": "fbfe1a5ffd84a0be2636040c7e0e86d5095b3f95237c2097f6387b5ec94d1b6f"
+    },
+    "loom.jpg": {
+      "bytes": 48861,
+      "sha256": "b98706529f49273744129d29812c5af5051962d45a4c96656f93585c31002d46"
+    },
+    "loom.mp4": {
+      "bytes": 363929,
+      "probe": {
+        "format": {
+          "duration": "6.000000"
+        },
+        "programs": [],
+        "stream_groups": [],
+        "streams": [
+          {
+            "avg_frame_rate": "24/1",
+            "codec_name": "h264",
+            "codec_type": "video",
+            "height": 360,
+            "nb_frames": "144",
+            "pix_fmt": "yuv420p",
+            "r_frame_rate": "24/1",
+            "width": 640
+          },
+          {
+            "avg_frame_rate": "0/0",
+            "codec_name": "aac",
+            "codec_type": "audio",
+            "nb_frames": "260",
+            "r_frame_rate": "0/0"
+          }
+        ]
+      },
+      "sha256": "c37e65ea391debca7ae2d3844d9f29a232f7c96f6bb7d3b0e6b958d44609352b"
+    },
+    "magnetic.jpg": {
+      "bytes": 51367,
+      "sha256": "0bef2f6412f9e197856a6370295f6d3784020823a0868a85e8d9cb0219e50950"
+    },
+    "magnetic.mp4": {
+      "bytes": 836575,
+      "probe": {
+        "format": {
+          "duration": "6.000000"
+        },
+        "programs": [],
+        "stream_groups": [],
+        "streams": [
+          {
+            "avg_frame_rate": "24/1",
+            "codec_name": "h264",
+            "codec_type": "video",
+            "height": 360,
+            "nb_frames": "144",
+            "pix_fmt": "yuv420p",
+            "r_frame_rate": "24/1",
+            "width": 640
+          },
+          {
+            "avg_frame_rate": "0/0",
+            "codec_name": "aac",
+            "codec_type": "audio",
+            "nb_frames": "260",
+            "r_frame_rate": "0/0"
+          }
+        ]
+      },
+      "sha256": "964ea9a1b53a1cc0c1181c1fd744d4fcf06ccafd4a17a6c59c1ddea42f82b19c"
+    },
+    "mercury.jpg": {
+      "bytes": 13613,
+      "sha256": "7f811c730b7a5a3b53ec0a729f20033007e72903ad84f33caf7554ca6d12453b"
+    },
+    "mercury.mp4": {
+      "bytes": 251380,
+      "probe": {
+        "format": {
+          "duration": "6.000000"
+        },
+        "programs": [],
+        "stream_groups": [],
+        "streams": [
+          {
+            "avg_frame_rate": "24/1",
+            "codec_name": "h264",
+            "codec_type": "video",
+            "height": 360,
+            "nb_frames": "144",
+            "pix_fmt": "yuv420p",
+            "r_frame_rate": "24/1",
+            "width": 640
+          },
+          {
+            "avg_frame_rate": "0/0",
+            "codec_name": "aac",
+            "codec_type": "audio",
+            "nb_frames": "260",
+            "r_frame_rate": "0/0"
+          }
+        ]
+      },
+      "sha256": "51736015c42ffa410386abb267b40a3e6c1e99600de50c062d12a2eff9dc2c6c"
+    },
+    "papercity.jpg": {
+      "bytes": 32872,
+      "sha256": "2802677b816de103b1df8ac6cdcac7bd215fad1e9bff2c953336d1f12399fd6b"
+    },
+    "papercity.mp4": {
+      "bytes": 424042,
+      "probe": {
+        "format": {
+          "duration": "6.000000"
+        },
+        "programs": [],
+        "stream_groups": [],
+        "streams": [
+          {
+            "avg_frame_rate": "24/1",
+            "codec_name": "h264",
+            "codec_type": "video",
+            "height": 360,
+            "nb_frames": "144",
+            "pix_fmt": "yuv420p",
+            "r_frame_rate": "24/1",
+            "width": 640
+          },
+          {
+            "avg_frame_rate": "0/0",
+            "codec_name": "aac",
+            "codec_type": "audio",
+            "nb_frames": "260",
+            "r_frame_rate": "0/0"
+          }
+        ]
+      },
+      "sha256": "bbbba7fc895ff3aef6a0107582072161e19bfc11a7c9d87d240cd7887c211632"
+    },
+    "phosphor.jpg": {
+      "bytes": 10151,
+      "sha256": "d5a7b7839d1d91f50973c45d24b42c43cf30207822f2600fe211011d9f859c22"
+    },
+    "phosphor.mp4": {
+      "bytes": 338622,
+      "probe": {
+        "format": {
+          "duration": "6.000000"
+        },
+        "programs": [],
+        "stream_groups": [],
+        "streams": [
+          {
+            "avg_frame_rate": "24/1",
+            "codec_name": "h264",
+            "codec_type": "video",
+            "height": 360,
+            "nb_frames": "144",
+            "pix_fmt": "yuv420p",
+            "r_frame_rate": "24/1",
+            "width": 640
+          },
+          {
+            "avg_frame_rate": "0/0",
+            "codec_name": "aac",
+            "codec_type": "audio",
+            "nb_frames": "260",
+            "r_frame_rate": "0/0"
+          }
+        ]
+      },
+      "sha256": "35d7b7e35ccde903524c06ad0c21aae5aced93f723e996c9272e32e6a6685012"
+    },
+    "quasicrystal.jpg": {
+      "bytes": 48460,
+      "sha256": "b655f689d6a065c6a4dad58d2fe8f78db63bcf06f23541986f6475c43807d329"
+    },
+    "quasicrystal.mp4": {
+      "bytes": 680655,
+      "probe": {
+        "format": {
+          "duration": "6.000000"
+        },
+        "programs": [],
+        "stream_groups": [],
+        "streams": [
+          {
+            "avg_frame_rate": "24/1",
+            "codec_name": "h264",
+            "codec_type": "video",
+            "height": 360,
+            "nb_frames": "144",
+            "pix_fmt": "yuv420p",
+            "r_frame_rate": "24/1",
+            "width": 640
+          },
+          {
+            "avg_frame_rate": "0/0",
+            "codec_name": "aac",
+            "codec_type": "audio",
+            "nb_frames": "260",
+            "r_frame_rate": "0/0"
+          }
+        ]
+      },
+      "sha256": "606b0b6d151a3fc4562617c790ea7e8961ecb8dd7edb3646ad33fe8d3b522ec1"
+    },
+    "rainglass.jpg": {
+      "bytes": 29415,
+      "sha256": "dc38040875dfb6fd4130efecd5ba98510ea4bd9a3db61220ef9169d30cc34cda"
+    },
+    "rainglass.mp4": {
+      "bytes": 249906,
+      "probe": {
+        "format": {
+          "duration": "6.000000"
+        },
+        "programs": [],
+        "stream_groups": [],
+        "streams": [
+          {
+            "avg_frame_rate": "24/1",
+            "codec_name": "h264",
+            "codec_type": "video",
+            "height": 360,
+            "nb_frames": "144",
+            "pix_fmt": "yuv420p",
+            "r_frame_rate": "24/1",
+            "width": 640
+          },
+          {
+            "avg_frame_rate": "0/0",
+            "codec_name": "aac",
+            "codec_type": "audio",
+            "nb_frames": "260",
+            "r_frame_rate": "0/0"
+          }
+        ]
+      },
+      "sha256": "e3e6a81ba59c3d5c3edb9c561dc8c79c567c6e8685375f89a6ad7cca70ecd78b"
+    },
+    "ridgeline.jpg": {
+      "bytes": 26290,
+      "sha256": "7ee21a47d49546b953b082a8383124aad11be62d1851908ee240e27495bf290d"
+    },
+    "ridgeline.mp4": {
+      "bytes": 953220,
+      "probe": {
+        "format": {
+          "duration": "6.000000"
+        },
+        "programs": [],
+        "stream_groups": [],
+        "streams": [
+          {
+            "avg_frame_rate": "24/1",
+            "codec_name": "h264",
+            "codec_type": "video",
+            "height": 360,
+            "nb_frames": "144",
+            "pix_fmt": "yuv420p",
+            "r_frame_rate": "24/1",
+            "width": 640
+          },
+          {
+            "avg_frame_rate": "0/0",
+            "codec_name": "aac",
+            "codec_type": "audio",
+            "nb_frames": "260",
+            "r_frame_rate": "0/0"
+          }
+        ]
+      },
+      "sha256": "c640bbf9ddc6a42337600a6742a3aee568ab74ee3416a54331e2b279facb22f1"
+    },
+    "tunnel.jpg": {
+      "bytes": 14308,
+      "sha256": "6de7802d70187e9bfce51c34b6589ab263ebfbe23fdfff72e7532e7808de9e09"
+    },
+    "tunnel.mp4": {
+      "bytes": 250753,
+      "probe": {
+        "format": {
+          "duration": "6.000000"
+        },
+        "programs": [],
+        "stream_groups": [],
+        "streams": [
+          {
+            "avg_frame_rate": "24/1",
+            "codec_name": "h264",
+            "codec_type": "video",
+            "height": 360,
+            "nb_frames": "144",
+            "pix_fmt": "yuv420p",
+            "r_frame_rate": "24/1",
+            "width": 640
+          },
+          {
+            "avg_frame_rate": "0/0",
+            "codec_name": "aac",
+            "codec_type": "audio",
+            "nb_frames": "260",
+            "r_frame_rate": "0/0"
+          }
+        ]
+      },
+      "sha256": "f6ec5677b477a5421684c7e85dd7624bf1fefb31798da085368af198c2ca45be"
+    }
+  },
+  "audio_provenance": "Original audio synthesized by this script (stdlib wave/math/random seed 7); no external audio.",
+  "binary_sha256": "989665433d1c05bc77ac91c656c8566fa593a183d71e3b9978303d85886b1ee0",
+  "capture": {
+    "duration_seconds": 6,
+    "fps": 24,
+    "frames": 144,
+    "seed": 7,
+    "size": "640x360"
+  },
+  "commands": [
+    [
+      "build/glistening",
+      "--file",
+      "<TEMP>/audio.wav",
+      "--mute",
+      "--no-director",
+      "--scene",
+      "aurora",
+      "--dump",
+      "<TEMP>/aurora/%05d.ppm",
+      "--seconds",
+      "6",
+      "--size",
+      "640x360"
+    ],
+    [
+      "ffmpeg",
+      "-y",
+      "-v",
+      "error",
+      "-framerate",
+      "24",
+      "-start_number",
+      "0",
+      "-i",
+      "<TEMP>/aurora/%05d.ppm",
+      "-i",
+      "<TEMP>/audio.wav",
+      "-c:v",
+      "libx264",
+      "-crf",
+      "28",
+      "-pix_fmt",
+      "yuv420p",
+      "-c:a",
+      "aac",
+      "-b:a",
+      "96k",
+      "-movflags",
+      "+faststart",
+      "-t",
+      "6",
+      "docs/demos/aurora.mp4"
+    ],
+    [
+      "ffmpeg",
+      "-y",
+      "-v",
+      "error",
+      "-i",
+      "docs/demos/aurora.mp4",
+      "-ss",
+      "2",
+      "-frames:v",
+      "1",
+      "docs/demos/aurora.jpg"
+    ],
+    [
+      "build/glistening",
+      "--file",
+      "<TEMP>/audio.wav",
+      "--mute",
+      "--no-director",
+      "--scene",
+      "mercury",
+      "--dump",
+      "<TEMP>/mercury/%05d.ppm",
+      "--seconds",
+      "6",
+      "--size",
+      "640x360"
+    ],
+    [
+      "ffmpeg",
+      "-y",
+      "-v",
+      "error",
+      "-framerate",
+      "24",
+      "-start_number",
+      "0",
+      "-i",
+      "<TEMP>/mercury/%05d.ppm",
+      "-i",
+      "<TEMP>/audio.wav",
+      "-c:v",
+      "libx264",
+      "-crf",
+      "28",
+      "-pix_fmt",
+      "yuv420p",
+      "-c:a",
+      "aac",
+      "-b:a",
+      "96k",
+      "-movflags",
+      "+faststart",
+      "-t",
+      "6",
+      "docs/demos/mercury.mp4"
+    ],
+    [
+      "ffmpeg",
+      "-y",
+      "-v",
+      "error",
+      "-i",
+      "docs/demos/mercury.mp4",
+      "-ss",
+      "2",
+      "-frames:v",
+      "1",
+      "docs/demos/mercury.jpg"
+    ],
+    [
+      "build/glistening",
+      "--file",
+      "<TEMP>/audio.wav",
+      "--mute",
+      "--no-director",
+      "--scene",
+      "galaxy",
+      "--dump",
+      "<TEMP>/galaxy/%05d.ppm",
+      "--seconds",
+      "6",
+      "--size",
+      "640x360"
+    ],
+    [
+      "ffmpeg",
+      "-y",
+      "-v",
+      "error",
+      "-framerate",
+      "24",
+      "-start_number",
+      "0",
+      "-i",
+      "<TEMP>/galaxy/%05d.ppm",
+      "-i",
+      "<TEMP>/audio.wav",
+      "-c:v",
+      "libx264",
+      "-crf",
+      "28",
+      "-pix_fmt",
+      "yuv420p",
+      "-c:a",
+      "aac",
+      "-b:a",
+      "96k",
+      "-movflags",
+      "+faststart",
+      "-t",
+      "6",
+      "docs/demos/galaxy.mp4"
+    ],
+    [
+      "ffmpeg",
+      "-y",
+      "-v",
+      "error",
+      "-i",
+      "docs/demos/galaxy.mp4",
+      "-ss",
+      "2",
+      "-frames:v",
+      "1",
+      "docs/demos/galaxy.jpg"
+    ],
+    [
+      "build/glistening",
+      "--file",
+      "<TEMP>/audio.wav",
+      "--mute",
+      "--no-director",
+      "--scene",
+      "tunnel",
+      "--dump",
+      "<TEMP>/tunnel/%05d.ppm",
+      "--seconds",
+      "6",
+      "--size",
+      "640x360"
+    ],
+    [
+      "ffmpeg",
+      "-y",
+      "-v",
+      "error",
+      "-framerate",
+      "24",
+      "-start_number",
+      "0",
+      "-i",
+      "<TEMP>/tunnel/%05d.ppm",
+      "-i",
+      "<TEMP>/audio.wav",
+      "-c:v",
+      "libx264",
+      "-crf",
+      "28",
+      "-pix_fmt",
+      "yuv420p",
+      "-c:a",
+      "aac",
+      "-b:a",
+      "96k",
+      "-movflags",
+      "+faststart",
+      "-t",
+      "6",
+      "docs/demos/tunnel.mp4"
+    ],
+    [
+      "ffmpeg",
+      "-y",
+      "-v",
+      "error",
+      "-i",
+      "docs/demos/tunnel.mp4",
+      "-ss",
+      "2",
+      "-frames:v",
+      "1",
+      "docs/demos/tunnel.jpg"
+    ],
+    [
+      "build/glistening",
+      "--file",
+      "<TEMP>/audio.wav",
+      "--mute",
+      "--no-director",
+      "--scene",
+      "ridgeline",
+      "--dump",
+      "<TEMP>/ridgeline/%05d.ppm",
+      "--seconds",
+      "6",
+      "--size",
+      "640x360"
+    ],
+    [
+      "ffmpeg",
+      "-y",
+      "-v",
+      "error",
+      "-framerate",
+      "24",
+      "-start_number",
+      "0",
+      "-i",
+      "<TEMP>/ridgeline/%05d.ppm",
+      "-i",
+      "<TEMP>/audio.wav",
+      "-c:v",
+      "libx264",
+      "-crf",
+      "28",
+      "-pix_fmt",
+      "yuv420p",
+      "-c:a",
+      "aac",
+      "-b:a",
+      "96k",
+      "-movflags",
+      "+faststart",
+      "-t",
+      "6",
+      "docs/demos/ridgeline.mp4"
+    ],
+    [
+      "ffmpeg",
+      "-y",
+      "-v",
+      "error",
+      "-i",
+      "docs/demos/ridgeline.mp4",
+      "-ss",
+      "2",
+      "-frames:v",
+      "1",
+      "docs/demos/ridgeline.jpg"
+    ],
+    [
+      "build/glistening",
+      "--file",
+      "<TEMP>/audio.wav",
+      "--mute",
+      "--no-director",
+      "--scene",
+      "ink",
+      "--dump",
+      "<TEMP>/ink/%05d.ppm",
+      "--seconds",
+      "6",
+      "--size",
+      "640x360"
+    ],
+    [
+      "ffmpeg",
+      "-y",
+      "-v",
+      "error",
+      "-framerate",
+      "24",
+      "-start_number",
+      "0",
+      "-i",
+      "<TEMP>/ink/%05d.ppm",
+      "-i",
+      "<TEMP>/audio.wav",
+      "-c:v",
+      "libx264",
+      "-crf",
+      "28",
+      "-pix_fmt",
+      "yuv420p",
+      "-c:a",
+      "aac",
+      "-b:a",
+      "96k",
+      "-movflags",
+      "+faststart",
+      "-t",
+      "6",
+      "docs/demos/ink.mp4"
+    ],
+    [
+      "ffmpeg",
+      "-y",
+      "-v",
+      "error",
+      "-i",
+      "docs/demos/ink.mp4",
+      "-ss",
+      "2",
+      "-frames:v",
+      "1",
+      "docs/demos/ink.jpg"
+    ],
+    [
+      "build/glistening",
+      "--file",
+      "<TEMP>/audio.wav",
+      "--mute",
+      "--no-director",
+      "--scene",
+      "quasicrystal",
+      "--dump",
+      "<TEMP>/quasicrystal/%05d.ppm",
+      "--seconds",
+      "6",
+      "--size",
+      "640x360"
+    ],
+    [
+      "ffmpeg",
+      "-y",
+      "-v",
+      "error",
+      "-framerate",
+      "24",
+      "-start_number",
+      "0",
+      "-i",
+      "<TEMP>/quasicrystal/%05d.ppm",
+      "-i",
+      "<TEMP>/audio.wav",
+      "-c:v",
+      "libx264",
+      "-crf",
+      "28",
+      "-pix_fmt",
+      "yuv420p",
+      "-c:a",
+      "aac",
+      "-b:a",
+      "96k",
+      "-movflags",
+      "+faststart",
+      "-t",
+      "6",
+      "docs/demos/quasicrystal.mp4"
+    ],
+    [
+      "ffmpeg",
+      "-y",
+      "-v",
+      "error",
+      "-i",
+      "docs/demos/quasicrystal.mp4",
+      "-ss",
+      "2",
+      "-frames:v",
+      "1",
+      "docs/demos/quasicrystal.jpg"
+    ],
+    [
+      "build/glistening",
+      "--file",
+      "<TEMP>/audio.wav",
+      "--mute",
+      "--no-director",
+      "--scene",
+      "phosphor",
+      "--dump",
+      "<TEMP>/phosphor/%05d.ppm",
+      "--seconds",
+      "6",
+      "--size",
+      "640x360"
+    ],
+    [
+      "ffmpeg",
+      "-y",
+      "-v",
+      "error",
+      "-framerate",
+      "24",
+      "-start_number",
+      "0",
+      "-i",
+      "<TEMP>/phosphor/%05d.ppm",
+      "-i",
+      "<TEMP>/audio.wav",
+      "-c:v",
+      "libx264",
+      "-crf",
+      "28",
+      "-pix_fmt",
+      "yuv420p",
+      "-c:a",
+      "aac",
+      "-b:a",
+      "96k",
+      "-movflags",
+      "+faststart",
+      "-t",
+      "6",
+      "docs/demos/phosphor.mp4"
+    ],
+    [
+      "ffmpeg",
+      "-y",
+      "-v",
+      "error",
+      "-i",
+      "docs/demos/phosphor.mp4",
+      "-ss",
+      "2",
+      "-frames:v",
+      "1",
+      "docs/demos/phosphor.jpg"
+    ],
+    [
+      "build/glistening",
+      "--file",
+      "<TEMP>/audio.wav",
+      "--mute",
+      "--no-director",
+      "--scene",
+      "rainglass",
+      "--dump",
+      "<TEMP>/rainglass/%05d.ppm",
+      "--seconds",
+      "6",
+      "--size",
+      "640x360"
+    ],
+    [
+      "ffmpeg",
+      "-y",
+      "-v",
+      "error",
+      "-framerate",
+      "24",
+      "-start_number",
+      "0",
+      "-i",
+      "<TEMP>/rainglass/%05d.ppm",
+      "-i",
+      "<TEMP>/audio.wav",
+      "-c:v",
+      "libx264",
+      "-crf",
+      "28",
+      "-pix_fmt",
+      "yuv420p",
+      "-c:a",
+      "aac",
+      "-b:a",
+      "96k",
+      "-movflags",
+      "+faststart",
+      "-t",
+      "6",
+      "docs/demos/rainglass.mp4"
+    ],
+    [
+      "ffmpeg",
+      "-y",
+      "-v",
+      "error",
+      "-i",
+      "docs/demos/rainglass.mp4",
+      "-ss",
+      "2",
+      "-frames:v",
+      "1",
+      "docs/demos/rainglass.jpg"
+    ],
+    [
+      "build/glistening",
+      "--file",
+      "<TEMP>/audio.wav",
+      "--mute",
+      "--no-director",
+      "--scene",
+      "cathedral",
+      "--dump",
+      "<TEMP>/cathedral/%05d.ppm",
+      "--seconds",
+      "6",
+      "--size",
+      "640x360"
+    ],
+    [
+      "ffmpeg",
+      "-y",
+      "-v",
+      "error",
+      "-framerate",
+      "24",
+      "-start_number",
+      "0",
+      "-i",
+      "<TEMP>/cathedral/%05d.ppm",
+      "-i",
+      "<TEMP>/audio.wav",
+      "-c:v",
+      "libx264",
+      "-crf",
+      "28",
+      "-pix_fmt",
+      "yuv420p",
+      "-c:a",
+      "aac",
+      "-b:a",
+      "96k",
+      "-movflags",
+      "+faststart",
+      "-t",
+      "6",
+      "docs/demos/cathedral.mp4"
+    ],
+    [
+      "ffmpeg",
+      "-y",
+      "-v",
+      "error",
+      "-i",
+      "docs/demos/cathedral.mp4",
+      "-ss",
+      "2",
+      "-frames:v",
+      "1",
+      "docs/demos/cathedral.jpg"
+    ],
+    [
+      "build/glistening",
+      "--file",
+      "<TEMP>/audio.wav",
+      "--mute",
+      "--no-director",
+      "--scene",
+      "magnetic",
+      "--dump",
+      "<TEMP>/magnetic/%05d.ppm",
+      "--seconds",
+      "6",
+      "--size",
+      "640x360"
+    ],
+    [
+      "ffmpeg",
+      "-y",
+      "-v",
+      "error",
+      "-framerate",
+      "24",
+      "-start_number",
+      "0",
+      "-i",
+      "<TEMP>/magnetic/%05d.ppm",
+      "-i",
+      "<TEMP>/audio.wav",
+      "-c:v",
+      "libx264",
+      "-crf",
+      "28",
+      "-pix_fmt",
+      "yuv420p",
+      "-c:a",
+      "aac",
+      "-b:a",
+      "96k",
+      "-movflags",
+      "+faststart",
+      "-t",
+      "6",
+      "docs/demos/magnetic.mp4"
+    ],
+    [
+      "ffmpeg",
+      "-y",
+      "-v",
+      "error",
+      "-i",
+      "docs/demos/magnetic.mp4",
+      "-ss",
+      "2",
+      "-frames:v",
+      "1",
+      "docs/demos/magnetic.jpg"
+    ],
+    [
+      "build/glistening",
+      "--file",
+      "<TEMP>/audio.wav",
+      "--mute",
+      "--no-director",
+      "--scene",
+      "loom",
+      "--dump",
+      "<TEMP>/loom/%05d.ppm",
+      "--seconds",
+      "6",
+      "--size",
+      "640x360"
+    ],
+    [
+      "ffmpeg",
+      "-y",
+      "-v",
+      "error",
+      "-framerate",
+      "24",
+      "-start_number",
+      "0",
+      "-i",
+      "<TEMP>/loom/%05d.ppm",
+      "-i",
+      "<TEMP>/audio.wav",
+      "-c:v",
+      "libx264",
+      "-crf",
+      "28",
+      "-pix_fmt",
+      "yuv420p",
+      "-c:a",
+      "aac",
+      "-b:a",
+      "96k",
+      "-movflags",
+      "+faststart",
+      "-t",
+      "6",
+      "docs/demos/loom.mp4"
+    ],
+    [
+      "ffmpeg",
+      "-y",
+      "-v",
+      "error",
+      "-i",
+      "docs/demos/loom.mp4",
+      "-ss",
+      "2",
+      "-frames:v",
+      "1",
+      "docs/demos/loom.jpg"
+    ],
+    [
+      "build/glistening",
+      "--file",
+      "<TEMP>/audio.wav",
+      "--mute",
+      "--no-director",
+      "--scene",
+      "papercity",
+      "--dump",
+      "<TEMP>/papercity/%05d.ppm",
+      "--seconds",
+      "6",
+      "--size",
+      "640x360"
+    ],
+    [
+      "ffmpeg",
+      "-y",
+      "-v",
+      "error",
+      "-framerate",
+      "24",
+      "-start_number",
+      "0",
+      "-i",
+      "<TEMP>/papercity/%05d.ppm",
+      "-i",
+      "<TEMP>/audio.wav",
+      "-c:v",
+      "libx264",
+      "-crf",
+      "28",
+      "-pix_fmt",
+      "yuv420p",
+      "-c:a",
+      "aac",
+      "-b:a",
+      "96k",
+      "-movflags",
+      "+faststart",
+      "-t",
+      "6",
+      "docs/demos/papercity.mp4"
+    ],
+    [
+      "ffmpeg",
+      "-y",
+      "-v",
+      "error",
+      "-i",
+      "docs/demos/papercity.mp4",
+      "-ss",
+      "2",
+      "-frames:v",
+      "1",
+      "docs/demos/papercity.jpg"
+    ],
+    [
+      "build/glistening",
+      "--file",
+      "<TEMP>/audio.wav",
+      "--mute",
+      "--no-director",
+      "--scene",
+      "clockwork",
+      "--dump",
+      "<TEMP>/clockwork/%05d.ppm",
+      "--seconds",
+      "6",
+      "--size",
+      "640x360"
+    ],
+    [
+      "ffmpeg",
+      "-y",
+      "-v",
+      "error",
+      "-framerate",
+      "24",
+      "-start_number",
+      "0",
+      "-i",
+      "<TEMP>/clockwork/%05d.ppm",
+      "-i",
+      "<TEMP>/audio.wav",
+      "-c:v",
+      "libx264",
+      "-crf",
+      "28",
+      "-pix_fmt",
+      "yuv420p",
+      "-c:a",
+      "aac",
+      "-b:a",
+      "96k",
+      "-movflags",
+      "+faststart",
+      "-t",
+      "6",
+      "docs/demos/clockwork.mp4"
+    ],
+    [
+      "ffmpeg",
+      "-y",
+      "-v",
+      "error",
+      "-i",
+      "docs/demos/clockwork.mp4",
+      "-ss",
+      "2",
+      "-frames:v",
+      "1",
+      "docs/demos/clockwork.jpg"
+    ]
+  ],
+  "platform": "macOS-26.5.2-arm64-arm-64bit-Mach-O",
+  "source_git_sha": "484b531d3cb4f4cb56115b5fd643784ddfedcb6d",
+  "tool_versions": {
+    "ffmpeg": "ffmpeg version 8.1 Copyright (c) 2000-2026 the FFmpeg developers",
+    "ffprobe": "ffprobe version 8.1 Copyright (c) 2007-2026 the FFmpeg developers",
+    "python": "3.14.7 (main, Aug  5 2026, 10:29:49) [Clang 21.0.0 (clang-2100.1.1.101)]"
+  }
+}

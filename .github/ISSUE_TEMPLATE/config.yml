@@ -1,0 +1,5 @@
+blank_issues_enabled: false
+contact_links:
+  - name: Feature requests and visualizer ideas
+    url: https://github.com/namelesstherebel/glistening/discussions/categories/ideas
+    about: Share features and new styles in Discussions.

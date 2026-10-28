@@ -514,12 +514,12 @@ static void testLayout() {
         Ui ui(s);
         ui.panel = true, ui.sel = 3;
         ui.key("?", 14, true);
-        const std::vector<std::string> labels = {"control panel", "choose a scene", "previous / next", "next scene (director)",
-            "auto director on/off", "MilkDrop mode", "cycle palette", "new look / random", "sensitivity", "effect intensity",
+        const std::vector<std::string> labels = {"control panel", "scenes 1-9", "scenes 10-14", "previous / next scene",
+            "random next scene", "previous (history)", "auto director on/off", "MilkDrop mode", "cycle palette", "new look / random", "sensitivity", "effect intensity",
             "HUD", "favourite / ban", "reload shaders", "info", "this help", "quit"};
         std::vector<bool> seen(labels.size());
         bool clean = true;
-        for (int step = 0; step < 16; step++) {
+        for (int step = 0; step < 18; step++) {
             Screen sc(40, 12);
             ui.draw(sc, sampleState());
             std::string text;
@@ -628,6 +628,33 @@ static void testKeys() {
     run("tab"), ui.sel = 13, a = run("enter"), run("tab");  // scenes past 9 are chosen in the panel
     nums &= a.size() == 1 && a[0].a == Act::Scene && a[0].arg == 13 && !ui.panel;
     check(nums, "number keys pick scenes 1-9, the panel reaches the rest; a toggles the director");
+    {
+        Settings ks;
+        Ui ku(ks);
+        const std::string keys = "123456789zxvgt";
+        bool all = std::string(sceneKeys()) == keys, absent = true, plain = true;
+        for (int i = 0; i < 14; i++) {
+            const std::string key(1, keys[i]);
+            all &= sceneShortcut(key, 14) == i && sceneKeyLabel(i) == key;
+            auto r = ku.key(key, 14, true);
+            all &= r.size() == 1 && r[0].a == Act::Scene && r[0].arg == i;
+            absent &= (i < 9 ? sceneShortcut(key, 9) == i : sceneShortcut(key, 9) == -1) && (i < 9 || ku.key(key, 9, true).empty());
+        }
+        absent &= sceneShortcut("~", 14) == -1 && sceneShortcut("12", 14) == -1 && sceneShortcut("", 14) == -1 && ku.key("~", 14, true).empty();
+        auto nx = ku.key("right", 14, true), pv = ku.key("left", 14, true);
+        plain &= nx.size() == 1 && nx[0].a == Act::SceneNext && pv.size() == 1 && pv[0].a == Act::ScenePrev;
+        auto n = ku.key("n", 14, true), sp = ku.key(" ", 14, true), p = ku.key("p", 14, true);
+        plain &= n.size() == 1 && n[0].a == Act::Next && sp.size() == 1 && sp[0].a == Act::Next && p.size() == 1 && p[0].a == Act::Prev;
+        check(all && absent && plain, "scene keys 123456789zxvgt map to scenes 0-13, extras ignored with 9 scenes; arrows ordered; n/space/p unchanged");
+        int fwd = 0, back = 0;
+        bool step = true;
+        for (int i = 0; i < 28; i++) fwd = sceneStep(fwd, 1, 14), step &= fwd == (i + 1) % 14;
+        for (int i = 0; i < 28; i++) back = sceneStep(back, -1, 14), step &= back == (14 - (i + 1) % 14) % 14;
+        step &= sceneStep(13, 1, 14) == 0 && sceneStep(0, -1, 14) == 13 && sceneStep(0, 1, 0) == -1 && sceneStep(0, 1, 1) == 0 &&
+                sceneStep(0, -1, 1) == 0 && sceneStep(-1, 1, 14) == 0 && sceneStep(-1, -1, 14) == 13 && sceneStep(14, 1, 14) == 0 &&
+                sceneStep(99, -1, 14) == 13;
+        check(step && fwd == 0 && back == 0, "sceneStep wraps forward/back over two cycles; zero, one and invalid current handled");
+    }
 }
 
 // --- output encoders ------------------------------------------------------------------
@@ -716,6 +743,35 @@ static void testReviewFixes() {
     auto k3 = splitKeys("\x1b", &rest);
     auto k4 = splitKeys(rest + "[B", &rest);
     check(k3.empty() && k4 == std::vector<std::string>{"down"} && rest.empty(), "a lone trailing ESC waits for the rest of its sequence");
+    {  // every split point and byte-by-byte feeding of arrow sequences must yield the same keys
+        const std::string E = "\x1b";
+        using Keys = std::vector<std::string>;
+        struct Case { std::string in; Keys want; };
+        const std::vector<Case> cases = {
+            {E + "[A" + E + "[B" + E + "[C" + E + "[D", {"up", "down", "right", "left"}},
+            {E + "OA" + E + "OB" + E + "OC" + E + "OD", {"up", "down", "right", "left"}},
+            {E + "[1;5C" + E + "[1;5D" + E + "[1;2A" + E + "[1;3B", {"right", "left", "up", "down"}},
+            {E + "[C" + E + "OD" + E + "[1;5C" + "q" + E + "OA" + E + "[B" + E + "[C", {"right", "left", "right", "q", "up", "down", "right"}},
+        };
+        bool split = true, bytes = true;
+        std::string detail;
+        for (const auto &c : cases) {
+            for (size_t i = 0; i <= c.in.size(); i++) {
+                std::string r1, r2;
+                Keys got = splitKeys(c.in.substr(0, i), &r1), more = splitKeys(r1 + c.in.substr(i), &r2);
+                got.insert(got.end(), more.begin(), more.end());
+                if (got != c.want || !r2.empty()) split = false, detail = "split " + std::to_string(i) + " of " + std::to_string(c.in.size());
+            }
+            std::string rest;
+            Keys got;
+            for (char ch : c.in) {
+                Keys part = splitKeys(rest + std::string(1, ch), &rest);
+                got.insert(got.end(), part.begin(), part.end());
+            }
+            bytes &= got == c.want && rest.empty();
+        }
+        check(split && bytes, "key parser: arrows (CSI, SS3, parameterized, mixed) survive every split and byte-wise feeding", detail);
+    }
     std::string peaks;
     bool peaked = true;
     for (float fps : {5.f, 30.f, 120.f}) {  // peak within one frame or the 30 ms rise, whichever is longer
