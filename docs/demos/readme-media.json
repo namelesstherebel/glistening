@@ -1,0 +1,135 @@
+{
+  "source_commit": "d68325d76a92cc83e6ddd02006e8d29b4d86d126",
+  "purpose": "Derived README previews; original MP4, JPG and WAV bytes unchanged. Actual offscreen renderer imagery, not terminal recordings.",
+  "ffmpeg_version": "ffmpeg version 8.1 Copyright (c) 2000-2026 the FFmpeg developers",
+  "gif_settings": {
+    "width": 288,
+    "height": 162,
+    "fps": 8,
+    "seconds": 6,
+    "frames": 48,
+    "palette_colors": 64,
+    "dither": "bayer",
+    "bayer_scale": 4,
+    "loop": 0
+  },
+  "gif_command": [
+    "ffmpeg",
+    "-v",
+    "error",
+    "-nostdin",
+    "-i",
+    "<scene>.mp4",
+    "-filter_complex",
+    "fps=8,scale=288:162:flags=lanczos,split[a][b];[a]palettegen=max_colors=64:stats_mode=diff[p];[b][p]paletteuse=dither=bayer:bayer_scale=4",
+    "-loop",
+    "0",
+    "-y",
+    "<scene>.gif"
+  ],
+  "assets": {
+    "aurora.gif": {
+      "bytes": 779871,
+      "sha256": "9a9dadd62a47a0d10f732b1c34c80e5ef8d244cb3a6fd208e2d8c5b5162d73df",
+      "source": "aurora.mp4",
+      "source_sha256": "f266164ef1c88cb92b4de74a4917287c75d24cc729a0a76bcaa78c14ea7a281d"
+    },
+    "cathedral.gif": {
+      "bytes": 556170,
+      "sha256": "99a1ef4fb7ea7489d18050f62306458cd6d26bdd66e001ef636307673f1e8159",
+      "source": "cathedral.mp4",
+      "source_sha256": "bac0aec57bdc45be8807f92d8a0b318dbea44898cfe841db50f8d91f0d20242e"
+    },
+    "clockwork.gif": {
+      "bytes": 532665,
+      "sha256": "cb2d5839bafb83d6ff3d181baf3adbf9f232c21d7a62f39c394aca89a01f98f5",
+      "source": "clockwork.mp4",
+      "source_sha256": "2d7e36b9fb5c497aa367f349312ba2af238ecdf2bb5666a95f451853aec52f9c"
+    },
+    "galaxy.gif": {
+      "bytes": 511193,
+      "sha256": "630f2c67429985d0eeb1e36a4a330826eeab463f377e5e9aa0ad9157fe2be630",
+      "source": "galaxy.mp4",
+      "source_sha256": "a0a0a0b799a55d41802f096ce91a8cec1cdb66cc677e0c83aaef5a9814125a60"
+    },
+    "ink.gif": {
+      "bytes": 322747,
+      "sha256": "d73743114afd7ba06f5c0657c84a2d37057fd48985778638777aa3e8b26a973c",
+      "source": "ink.mp4",
+      "source_sha256": "fbfe1a5ffd84a0be2636040c7e0e86d5095b3f95237c2097f6387b5ec94d1b6f"
+    },
+    "loom.gif": {
+      "bytes": 982321,
+      "sha256": "b9e7d21cc882f1b6be9132ff1b77110b6946b43c814965b996474858179d36ad",
+      "source": "loom.mp4",
+      "source_sha256": "c37e65ea391debca7ae2d3844d9f29a232f7c96f6bb7d3b0e6b958d44609352b"
+    },
+    "magnetic.gif": {
+      "bytes": 1315821,
+      "sha256": "fce6af735714d6958748628e7ccb42a26e1af9c026333445ead78550338d8cc3",
+      "source": "magnetic.mp4",
+      "source_sha256": "964ea9a1b53a1cc0c1181c1fd744d4fcf06ccafd4a17a6c59c1ddea42f82b19c"
+    },
+    "mercury.gif": {
+      "bytes": 620322,
+      "sha256": "f8c7e286785fc4447e4bbe35b5360e644657278deeb8675b5c3ca7cc9e686667",
+      "source": "mercury.mp4",
+      "source_sha256": "51736015c42ffa410386abb267b40a3e6c1e99600de50c062d12a2eff9dc2c6c"
+    },
+    "papercity.gif": {
+      "bytes": 1304634,
+      "sha256": "1d05f3e405919be69e634e3c0cc756ff6db5599439eee7ad0c57d7a834ff23bb",
+      "source": "papercity.mp4",
+      "source_sha256": "bbbba7fc895ff3aef6a0107582072161e19bfc11a7c9d87d240cd7887c211632"
+    },
+    "phosphor.gif": {
+      "bytes": 731433,
+      "sha256": "81ef53cd0ebc4d9d060834ab08f38a998a6801dbd2cd203d82d2eb6145a9ab04",
+      "source": "phosphor.mp4",
+      "source_sha256": "35d7b7e35ccde903524c06ad0c21aae5aced93f723e996c9272e32e6a6685012"
+    },
+    "quasicrystal.gif": {
+      "bytes": 1557648,
+      "sha256": "94f82cce5eab672ed94ca2ebf530d14fac39c96e005fe884fab88cd650634f59",
+      "source": "quasicrystal.mp4",
+      "source_sha256": "606b0b6d151a3fc4562617c790ea7e8961ecb8dd7edb3646ad33fe8d3b522ec1"
+    },
+    "rainglass.gif": {
+      "bytes": 695307,
+      "sha256": "2a72f1c7b0ef1124b385b6d5893cd9cbbba4271bdc33e1635cac1b19bc2aff39",
+      "source": "rainglass.mp4",
+      "source_sha256": "e3e6a81ba59c3d5c3edb9c561dc8c79c567c6e8685375f89a6ad7cca70ecd78b"
+    },
+    "ridgeline.gif": {
+      "bytes": 1038867,
+      "sha256": "a4688a2634c47d547f6525a6d67a3d88c9f9f154e3f2edad6732c7da3f798f43",
+      "source": "ridgeline.mp4",
+      "source_sha256": "c640bbf9ddc6a42337600a6742a3aee568ab74ee3416a54331e2b279facb22f1"
+    },
+    "tunnel.gif": {
+      "bytes": 1100974,
+      "sha256": "aecc08c9dc14992d45871d1577f0a6a58325191ea4894239d4e84faca4581758",
+      "source": "tunnel.mp4",
+      "source_sha256": "f6ec5677b477a5421684c7e85dd7624bf1fefb31798da085368af198c2ca45be"
+    }
+  },
+  "hero": {
+    "file": "hero.png",
+    "width": 1264,
+    "height": 234,
+    "bytes": 240717,
+    "sha256": "47b605cea96f704e383970c6f22ac3fd469dc6bd7b31eaaadf6987a649499230",
+    "sources": [
+      "aurora.jpg",
+      "cathedral.jpg",
+      "clockwork.jpg"
+    ],
+    "source_sha256": {
+      "aurora.jpg": "974a495b18661d043929b019e9583108315717df06ba571260fcb6cffaacf8a8",
+      "cathedral.jpg": "547b85ac182fe555dd0f0966a60b07359c564b45afb18e1f0e11ce77ae799539",
+      "clockwork.jpg": "ee2cc1fd75199d8026f5c4c87ed0881c52e7a90c2ef612fc2b50a4b996250485"
+    },
+    "filter": "[0:v]scale=416:234[a];[1:v]scale=416:234[b];[2:v]scale=416:234[c];[a][b][c]xstack=inputs=3:layout=0_0|424_0|848_0:fill=black",
+    "note": "Three full frames, no crop or synthesized artwork; 8-pixel black gutters."
+  }
+}

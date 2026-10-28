@@ -1,5 +1,7 @@
 # gListening
 
+![Aurora, Laser Cathedral and Clockwork rendered by gListening](docs/demos/hero.png)
+
 Music, rendered in your terminal.
 
 - Fourteen original GLSL scenes driven by system audio, an audio file, or a test signal
@@ -97,22 +99,17 @@ A microphone is never substituted. Protected audio may be unavailable.
 
 Each preview is a real 6-second offscreen render with original synthesized audio, not a terminal screen recording. Details: [docs/demos/README.md](docs/demos/README.md).
 
-| ID | Scene | Idea | Preview |
-|---|---|---|---|
-| `aurora` | Aurora | Folding light curtains over a lake | ![Aurora: green light curtains over a mountain lake](docs/demos/aurora.jpg) [MP4](docs/demos/aurora.mp4) |
-| `mercury` | Mercury | Liquid chrome blobs | ![Mercury: liquid chrome blobs in a dark studio](docs/demos/mercury.jpg) [MP4](docs/demos/mercury.mp4) |
-| `galaxy` | Galaxy | Spiral of instanced stars | ![Galaxy: spiral of stars with a bright core](docs/demos/galaxy.jpg) [MP4](docs/demos/galaxy.mp4) |
-| `tunnel` | Tunnel | Hexagonal corridor of spectrum rings | ![Tunnel: hexagonal corridor lit by spectrum rings](docs/demos/tunnel.jpg) [MP4](docs/demos/tunnel.mp4) |
-| `ridgeline` | Ridgeline | Spectrum history as dusk landscape | ![Ridgeline: contoured hills at dusk](docs/demos/ridgeline.jpg) [MP4](docs/demos/ridgeline.mp4) |
-| `ink` | Ink | Luminous dye in a current | ![Ink: glowing dye swirling in water](docs/demos/ink.jpg) [MP4](docs/demos/ink.mp4) |
-| `quasicrystal` | Quasicrystal | Never-repeating wave rosettes | ![Quasicrystal: interfering waves forming rosettes](docs/demos/quasicrystal.jpg) [MP4](docs/demos/quasicrystal.mp4) |
-| `phosphor` | Phosphor | CRT-beam waveform ring | ![Phosphor: glowing CRT waveform ring](docs/demos/phosphor.jpg) [MP4](docs/demos/phosphor.mp4) |
-| `rainglass` | Rain Glass | Rain on a window over neon | ![Rain Glass: raindrops on glass before a blurred neon street](docs/demos/rainglass.jpg) [MP4](docs/demos/rainglass.mp4) |
-| `cathedral` | Laser Cathedral | Light beams through haze and arches | ![Laser Cathedral: laser beams under tall arches](docs/demos/cathedral.jpg) [MP4](docs/demos/cathedral.mp4) |
-| `magnetic` | Magnetic Field | Filings tracing three magnets | ![Magnetic Field: glowing iron filings around magnets](docs/demos/magnetic.jpg) [MP4](docs/demos/magnetic.mp4) |
-| `loom` | Loom | Threads weaving an evolving fabric | ![Loom: luminous woven threads](docs/demos/loom.jpg) [MP4](docs/demos/loom.mp4) |
-| `papercity` | Paper City | Folded paper skyline | ![Paper City: folded paper buildings lit along streets](docs/demos/papercity.jpg) [MP4](docs/demos/papercity.mp4) |
-| `clockwork` | Clockwork | Gears, pendulum and orrery | ![Clockwork: meshing gears, pendulum and orrery](docs/demos/clockwork.jpg) [MP4](docs/demos/clockwork.mp4) |
+| Scene | Scene |
+|---|---|
+| **Aurora** (`aurora`)<br>![Aurora: green light curtains over a mountain lake](docs/demos/aurora.gif)<br>Folding light curtains over a lake<br>[MP4 with audio](docs/demos/aurora.mp4) | **Mercury** (`mercury`)<br>![Mercury: liquid chrome blobs in a dark studio](docs/demos/mercury.gif)<br>Liquid chrome blobs<br>[MP4 with audio](docs/demos/mercury.mp4) |
+| **Galaxy** (`galaxy`)<br>![Galaxy: spiral of stars with a bright core](docs/demos/galaxy.gif)<br>Spiral of instanced stars<br>[MP4 with audio](docs/demos/galaxy.mp4) | **Tunnel** (`tunnel`)<br>![Tunnel: hexagonal corridor lit by spectrum rings](docs/demos/tunnel.gif)<br>Hexagonal corridor of spectrum rings<br>[MP4 with audio](docs/demos/tunnel.mp4) |
+| **Ridgeline** (`ridgeline`)<br>![Ridgeline: contoured hills at dusk](docs/demos/ridgeline.gif)<br>Spectrum history as dusk landscape<br>[MP4 with audio](docs/demos/ridgeline.mp4) | **Ink** (`ink`)<br>![Ink: glowing dye swirling in water](docs/demos/ink.gif)<br>Luminous dye in a current<br>[MP4 with audio](docs/demos/ink.mp4) |
+| **Quasicrystal** (`quasicrystal`)<br>![Quasicrystal: interfering waves forming rosettes](docs/demos/quasicrystal.gif)<br>Never-repeating wave rosettes<br>[MP4 with audio](docs/demos/quasicrystal.mp4) | **Phosphor** (`phosphor`)<br>![Phosphor: glowing CRT waveform ring](docs/demos/phosphor.gif)<br>CRT-beam waveform ring<br>[MP4 with audio](docs/demos/phosphor.mp4) |
+| **Rain Glass** (`rainglass`)<br>![Rain Glass: raindrops on glass before a blurred neon street](docs/demos/rainglass.gif)<br>Rain on a window over neon<br>[MP4 with audio](docs/demos/rainglass.mp4) | **Laser Cathedral** (`cathedral`)<br>![Laser Cathedral: laser beams under tall arches](docs/demos/cathedral.gif)<br>Light beams through haze and arches<br>[MP4 with audio](docs/demos/cathedral.mp4) |
+| **Magnetic Field** (`magnetic`)<br>![Magnetic Field: glowing iron filings around magnets](docs/demos/magnetic.gif)<br>Filings tracing three magnets<br>[MP4 with audio](docs/demos/magnetic.mp4) | **Loom** (`loom`)<br>![Loom: luminous woven threads](docs/demos/loom.gif)<br>Threads weaving an evolving fabric<br>[MP4 with audio](docs/demos/loom.mp4) |
+| **Paper City** (`papercity`)<br>![Paper City: folded paper buildings lit along streets](docs/demos/papercity.gif)<br>Folded paper skyline<br>[MP4 with audio](docs/demos/papercity.mp4) | **Clockwork** (`clockwork`)<br>![Clockwork: meshing gears, pendulum and orrery](docs/demos/clockwork.gif)<br>Gears, pendulum and orrery<br>[MP4 with audio](docs/demos/clockwork.mp4) |
+
+GIFs loop silently. Open an MP4 for higher-quality playback with audio, or download the [original synthesized WAV](docs/demos/demo-audio.wav). The [static previews](docs/demos/README.md#static-previews) remain available if you prefer still images.
 
 ## Controls
 
