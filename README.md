@@ -13,16 +13,40 @@ Music, rendered in your terminal.
 
 ## Installation
 
-gListening is installed **from source**. No release has been published yet.
+gListening [v0.1.0](https://github.com/namelesstherebel/glistening/releases/tag/v0.1.0) is published on GitHub. Download a prebuilt archive for your platform; native archives need no Node.js.
 
-### Prerequisites
+| Platform | Download |
+|---|---|
+| macOS Apple Silicon | [glistening-0.1.0-darwin-arm64-d68325d.tar.gz](https://github.com/namelesstherebel/glistening/releases/download/v0.1.0/glistening-0.1.0-darwin-arm64-d68325d.tar.gz) |
+| macOS Intel | [glistening-0.1.0-darwin-x64-d68325d.tar.gz](https://github.com/namelesstherebel/glistening/releases/download/v0.1.0/glistening-0.1.0-darwin-x64-d68325d.tar.gz) |
+| Linux x64 | [glistening-0.1.0-linux-x64-d68325d.tar.gz](https://github.com/namelesstherebel/glistening/releases/download/v0.1.0/glistening-0.1.0-linux-x64-d68325d.tar.gz) |
+| Windows x64 | [glistening-0.1.0-win32-x64-d68325d.zip](https://github.com/namelesstherebel/glistening/releases/download/v0.1.0/glistening-0.1.0-win32-x64-d68325d.zip) |
+| Complete npm tarball (Node 20+) | [glistening-0.1.0-d68325d.tgz](https://github.com/namelesstherebel/glistening/releases/download/v0.1.0/glistening-0.1.0-d68325d.tgz) |
+
+The release also includes `SHA256SUMS`, `manifest.json`, `SOURCE.json` and `LICENSE`. The package is **not** published to the npm registry; use the GitHub tarball above, not `npm install -g glistening`.
+
+Example for Apple Silicon (see [docs/install.md](docs/install.md) for every platform, checksums and the npm tarball):
+
+```sh
+mkdir glistening-0.1.0 && cd glistening-0.1.0
+curl -fLO https://github.com/namelesstherebel/glistening/releases/download/v0.1.0/glistening-0.1.0-darwin-arm64-d68325d.tar.gz
+echo "048c8aced9209f3ac5c3800b34d30fced815e94c625cf7c7d638193c6d2f6ebf  glistening-0.1.0-darwin-arm64-d68325d.tar.gz" | shasum -a 256 -c
+tar -xzf glistening-0.1.0-darwin-arm64-d68325d.tar.gz
+./glistening-0.1.0-darwin-arm64-d68325d/glistening --self-test
+```
+
+macOS builds are not notarized: the Intel build is unsigned and the Apple Silicon build is ad hoc signed.
+
+### Build from source
+
+#### Prerequisites
 
 - **macOS 14.2+:** Xcode Command Line Tools, CMake
 - **Linux:** EGL, OpenGL 3.3, a Pulse-compatible server with `parec`
 - **Windows 10 1809+ / 11:** Visual Studio 2022 with C++, CMake
-- **ffmpeg:** needed only for file input (`--file`) on macOS and Windows
+- **ffmpeg (optional):** needed only for file input (`--file`) on macOS and Windows
 
-All platforms need CMake 3.21+ and a C++17 compiler. Node 20 is the minimum for the optional launcher tests; a supported LTS release is recommended. See [docs/install.md](docs/install.md) for required vs optional OS dependencies and official installers.
+Source builds need CMake 3.21+ and a C++17 compiler. Node 20+ is needed only for the npm tarball and launcher tests. See [docs/install.md](docs/install.md) for required vs optional OS dependencies and official installers.
 
 Copy/paste dependency commands:
 
@@ -46,7 +70,7 @@ winget install --id Gyan.FFmpeg --exact --source winget
 
 Ghostty and Kitty are native macOS/Linux terminals and give the best results. Windows Terminal falls back to half blocks.
 
-### Build
+#### Build
 
 ```sh
 git clone https://github.com/namelesstherebel/glistening.git
@@ -62,15 +86,15 @@ Optional MilkDrop mode is Linux-only, needs projectM 3, and is not bundled. No M
 
 ### Testing status
 
-- **Prior CI:** AEC run 40592503463 passed all 4 native jobs and the npm bundle job. That run predates the current keyboard changes.
-- **Current keyboard head:** checks are available via PR #7; this README does not report their result.
-- **Local:** on Apple Silicon (27 Oct), the 9 native tests and 10 npm tests passed. Other operating systems have configured targets but were not retested locally.
+- **Release CI:** the tested CI run 40614502474 built the release source and passed all 4 native jobs and the npm bundle job, with 10 native tests passing on Windows and 9 on each other platform. Both Semgrep checks passed. PR #7 was merged with the required Pullfrog approval.
+- **Public artifacts:** all 9 release assets were downloaded anonymously and digest-checked; the public npm tarball was installed offline and self-tested.
+- **Live audio:** the maintainer personally tested live playback. The hosted diagnostic did not pass.
 
-`npm test` only exercises the launcher; Node 20 is optional. Full evidence and limits: [docs/verification.md](docs/verification.md).
+Full evidence and limits: [docs/verification.md](docs/verification.md).
 
 ## Usage
 
-From a source build, run the uninstalled executable from the repository root:
+The examples use a source build from the repository root. With a prebuilt archive, run the `glistening` executable inside the extracted folder instead:
 
 ```sh
 ./build/glistening                          # visualize system audio

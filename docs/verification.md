@@ -1,31 +1,29 @@
 # Verification
 
-Evidence from 27 Oct 2026 on macOS, Apple Silicon (Apple M1 Ultra), OpenGL 4.1, AppleClang 21, FFmpeg 8.1, Python 3.14.7. Base renderer source: `484b531d3cb4f4cb56115b5fd643784ddfedcb6d`.
+## Public release v0.1.0
 
-## Passed locally
+Release: https://github.com/namelesstherebel/glistening/releases/tag/v0.1.0 (latest). Tag `v0.1.0` targets merge `34deaa8992c05eb775392a6a88714caa28b5d56e`.
+
+- **Source and CI:** tested CI run 40614502474 built commit `0944250b7b54650a9bdd3f27a4681527838e500b` from source head `d68325d76a92cc83e6ddd02006e8d29b4d86d126`. Its tree `05e087344db1e9904b6ad87003bb124f8538f1b7` is identical to the merged tree. The merge commit itself was not rebuilt.
+- **Passed:** all 4 native jobs and the npm bundle job; 10 native tests on Windows and 9 on each other platform; both Semgrep checks and merge Semgrep run 40621241439. The exact Pullfrog approval succeeded and PR #7 was merged.
+- **Public artifacts:** all 9 release assets were fetched anonymously (HTTP 200) and their SHA-256 digests matched. The public npm tarball `glistening-0.1.0-d68325d.tgz` was installed offline and its self-test passed. Digests are listed in [releasing.md](releasing.md#release-assets).
+- **Signing:** the Intel macOS build is unsigned and the Apple Silicon build is ad hoc signed. Notarization is not claimed.
+- **npm registry:** not published. `npm whoami` returned ENEEDAUTH, which blocks registry publication only, not the GitHub release.
+- **Live audio:** the maintainer personally tested live playback and accepted it; no further consent request is planned. The hosted diagnostic did not pass (0 of 132300 frames over 3 s, with a stalled teardown in `TapCapture::~TapCapture`); its root cause is not asserted, and it is not claimed as a pass.
+- **License:** GPL-3.0-only.
+
+## Earlier local checks
+
+Evidence from 27 Oct 2026 on macOS, Apple Silicon (Apple M1 Ultra), OpenGL 4.1, AppleClang 21, FFmpeg 8.1, Python 3.14.7. These predate the release and were not repeated on the other operating systems locally.
 
 - Configure and build: PASS.
-- CTest: 9/9 PASS in 21.86 s on the normal GPU. An initial sandboxed software-render run was interrupted and replaced.
-- npm tests: 10/10 PASS.
+- CTest: 9/9 PASS. npm tests: 10/10 PASS.
 - Self-test: 14 scenes PASS.
 - Clean local Apple Silicon `npm install` outside the checkout: PASS.
 - Setup dry run (`brew ffmpeg`): PASS; no installer executed.
 - Source guard refuses publishing, as intended.
 - Demos: 14 real renderer MP4s (H.264 yuv420p, 640x360, 24 fps, 144 frames, 6 s, AAC 96k, faststart), 14 JPGs, the original WAV and a hash/tool-version manifest, 6.37 MiB in total. All were decoded and hash-checked; 3 representative previews were inspected.
 
-## Not verified
+## Contribution routes
 
-- The other three platform targets were not tested locally. Historical CI on AEC head, run 40592503463: all four native builds and the full npm bundle passed; the four archive integrity checks and the final bundle clean-install passed on Linux CI and Apple Silicon. The later keyboard change supersedes those AEC binaries. CI and artifacts for the new head are pending, and no release exists yet.
-- Live audio: the maintainer personally tested live playback on 27 Oct 2026. The hosted zero-frame diagnostic never passed: it received 0 of 132300 frames over 3 s, with a stalled teardown in `TapCapture::~TapCapture` (CoreAudio `AudioDeviceDestroyIOProcID`). The default output was valid and the tap matched it. OS consent was not inferred and no TCC changes were made. The maintainer states no further consent or retest is required. The diagnostic's root cause is not asserted, and the hosted diagnostic is not claimed as a pass.
-- npm registry lookup returned 404 and `npm whoami` ENEEDAUTH. This blocks registry publication only, not a GitHub tarball or release. Nothing has been published or released.
-- Discussions were enabled on 27 Oct 2026 after explicit owner approval, with the categories Announcements, General, Ideas, Polls, Q&A and Show and Tell. The Ideas URL was verified: https://github.com/namelesstherebel/glistening/discussions/categories/ideas. An earlier denial of the enable command is historic and superseded by the authorized activation.
-- Automatic CodeRabbit is disabled. Pullfrog (trusted app 1768019) is required by active ruleset 25354593. Historical review run 39801015273 (job 119901382450) reviewed PR 6 head `fef00e2` using Sol and does not cover any newer head; a current-head Pullfrog review is still required.
-- Pullfrog console, verified signed in on 27 Oct 2026 (https://pullfrog.com/console/namelesstherebel/glistening): provider ChatGPT (Codex), existing connected subscription inherited from the account; model `openai/gpt-6.1-sol` High; account Free; personal BYOK API keys unconfigured; no Router. Draft PRs OFF, auto-merge OFF, Fix CI on non-Pullfrog PRs OFF, no active runs. No settings were changed.
-
-## Publication hold
-
-The earlier unknown billing hold is resolved for draft PR publication: a draft PR does not trigger Pullfrog review and automatic CodeRabbit is disabled. Normal native/semgrep CI may run, and the draft review check is expected to be missing. No new credit spending or API fallback is authorized. An actual review verdict on the current head and passing CI are still required before merge or release. Proposed version 0.1.0 from the exact source, after CI, review and artifact checks, is the authorized download goal; no further generic owner release approval applies. Missing npm account authentication remains a separate npm publication blocker. The license remains GPL-3.0-only. No bot commands, merges, workflow or review-setting changes, paid Extra or credentials were used. The host independently verifies the final integration after apply.
-
-## Owner choices retained
-
-Bug-only Issues; Discussions (Ideas) for features; pull requests at the maintainer's discretion; new styles encouraged; Ghostty and Kitty on macOS/Linux.
+Bug-only Issues; [Discussions → Ideas](https://github.com/namelesstherebel/glistening/discussions/categories/ideas) for features; pull requests at the maintainer's discretion; new styles encouraged. Ghostty and Kitty are the best terminals on macOS and Linux.
