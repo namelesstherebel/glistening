@@ -31,6 +31,19 @@ Replay can differ in pixels across GPU and driver versions. The seed controls th
 
 Preview links carry alt text; videos may play differently via GitHub's download or player.
 
+Scene shortcut keys, in the order below: `1` `2` `3` `4` `5` `6` `7` `8` `9` `z` `x` `v` `g` `t` (aurora through clockwork). `←`/`→` step through the same order and wrap across all 14 built-ins outside the control panel; `n`/`space` pick a random next scene and `p` returns through history. In the control panel the arrows adjust settings, and in MilkDrop they keep changing presets.
+
+| Key | ID | Key | ID |
+|---|---|---|---|
+| `1` | aurora | `9` | rainglass |
+| `2` | mercury | `z` | cathedral |
+| `3` | galaxy | `x` | magnetic |
+| `4` | tunnel | `v` | loom |
+| `5` | ridgeline | `g` | papercity |
+| `6` | ink | `t` | clockwork |
+| `7` | quasicrystal | | |
+| `8` | phosphor | | |
+
 | ID | Preview | Video |
 |---|---|---|
 | aurora | [![Aurora preview: light curtains over a lake](aurora.jpg)](aurora.mp4) | [aurora.mp4](aurora.mp4) |

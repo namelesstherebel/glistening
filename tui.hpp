@@ -6,6 +6,7 @@
 #include <algorithm>
 #include <clocale>
 #include <cstdio>
+#include <cstring>
 #include <cwchar>
 #ifdef __APPLE__
 #include <xlocale.h>  // newlocale, uselocale
@@ -147,7 +148,29 @@ struct UiState {
     unsigned accent = 0xd6c7ff;  // sRGB, from the palette
 };
 
-enum class Act { None, Quit, Scene, Next, Prev, Director, MilkDrop, Palette, Gain, Intensity, Quality, Phrase, Hud, Reroll, Favourite, Ban, Reload, Info };
+// Scene shortcuts in scene order: keys 1-9 are scenes 1-9, then z x v g t are scenes 10-14.
+inline const char *sceneKeys() { return "123456789zxvgt"; }
+inline int sceneShortcut(const std::string &k, int nScenes) {  // scene index for a key, or -1
+    if (k.size() != 1 || !k[0]) return -1;
+    const char *p = std::strchr(sceneKeys(), k[0]);
+    const int i = p ? int(p - sceneKeys()) : -1;
+    return i >= 0 && i < nScenes ? i : -1;
+}
+inline std::string sceneKeyLabel(int i) {  // "" when the scene has no key
+    return i >= 0 && i < int(std::strlen(sceneKeys())) ? std::string(1, sceneKeys()[i]) : "";
+}
+// Ordered neighbour of `current` (dir +1/-1), wrapping over all scenes. Returns -1 when there are
+// no scenes. An invalid current (e.g. -1 for MilkDrop) enters at the first scene going forward,
+// the last going back. Pass the renderer's requested target (Engine::current()), not a displayed one.
+inline int sceneStep(int current, int dir, int nScenes) {
+    if (nScenes <= 0) return -1;
+    if (current < 0 || current >= nScenes) return dir < 0 ? nScenes - 1 : 0;
+    return ((current + (dir < 0 ? -1 : 1)) % nScenes + nScenes) % nScenes;
+}
+
+// SceneNext/ScenePrev: ordered navigation (Left/Right outside the panel); the host applies
+// sceneStep(eng.current(), ±1, n). Next/Prev stay random-next / history (n, space, p).
+enum class Act { None, Quit, Scene, Next, Prev, SceneNext, ScenePrev, Director, MilkDrop, Palette, Gain, Intensity, Quality, Phrase, Hud, Reroll, Favourite, Ban, Reload, Info };
 struct Action {
     Act a = Act::None;
     int arg = 0;
@@ -193,6 +216,7 @@ inline const std::vector<std::string> &paletteChoices() {
 
 class Ui {
 public:
+    static constexpr int HELP_N = 18;  // rows in the help table (checked in drawHelp)
     bool panel = false, help = false;
     int helpScroll = 0;  // focused help row, independent of the panel selection
     int sel = 0;    // panel row
@@ -229,8 +253,8 @@ public:
             if (panel) sel = std::clamp(focus, 0, int(it.size()) - 1);
         }
         else if (k == "?") help = !help, helpScroll = 0;
-        else if (help && (k == "up" || k == "k")) helpScroll = (helpScroll + 15) % 16;
-        else if (help && (k == "down" || k == "j")) helpScroll = (helpScroll + 1) % 16;
+        else if (help && (k == "up" || k == "k")) helpScroll = (helpScroll + HELP_N - 1) % HELP_N;
+        else if (help && (k == "down" || k == "j")) helpScroll = (helpScroll + 1) % HELP_N;
         else if (panel && (k == "up" || k == "k")) sel = (sel + int(it.size()) - 1) % int(it.size());
         else if (panel && (k == "down" || k == "j")) sel = (sel + 1) % int(it.size());
         else if (panel && (k == "left" || k == "right" || k == "enter" || k == " ")) {
@@ -246,11 +270,12 @@ public:
                 case PhraseRow: stepPhrase(d), act(Act::Phrase); break;
                 case HudRow: s.hud = !s.hud, act(Act::Hud); break;
             }
-        } else if (k.size() == 1 && k[0] >= '1' && k[0] <= '9' && k[0] - '1' < nScenes) act(Act::Scene, k[0] - '1');
+        } else if (sceneShortcut(k, nScenes) >= 0) act(Act::Scene, sceneShortcut(k, nScenes));
         else if (k == "m" || (k == "0" && milk)) act(Act::MilkDrop, -1);
-        else if (k == "right" || k == "n") act(Act::Next);
-        else if (k == " ") act(Act::Next);
-        else if (k == "left" || k == "p") act(Act::Prev);
+        else if (k == "right") act(Act::SceneNext);
+        else if (k == "left") act(Act::ScenePrev);
+        else if (k == "n" || k == " ") act(Act::Next);
+        else if (k == "p") act(Act::Prev);
         else if (k == "a" || k == "l") s.director = !s.director, act(Act::Director);
         else if (k == "c") cyclePalette(1), act(Act::Palette);
         else if (k == "+" || k == "=") stepGain(1), act(Act::Gain);
@@ -402,7 +427,7 @@ private:
         char b[32];
         switch (item.row) {
             case SceneRow:
-                label = (item.scene < 9 ? std::to_string(item.scene + 1) : " ") + "  " + st.scenes[item.scene];  // only 1-9 have number keys
+                label = (sceneKeyLabel(item.scene).empty() ? " " : sceneKeyLabel(item.scene)) + "  " + st.scenes[item.scene];
                 live = st.current == item.scene;
                 break;
             case MilkRow: label = "0  MilkDrop"; live = st.current < 0; break;
@@ -429,13 +454,15 @@ private:
 
     Box drawHelp(Screen &sc, const UiState &st) const {
         static const char *keys[][2] = {
-            {"tab", "control panel"}, {"1-9", "choose a scene (tab: all)"}, {"← →", "previous / next scene"},
-            {"space", "next scene (director)"}, {"a", "auto director on/off"}, {"m", "MilkDrop mode"},
+            {"tab", "control panel"}, {"1-9", "scenes 1-9"}, {"zxvgt", "scenes 10-14"},
+            {"← →", "previous / next scene"}, {"n spc", "random next scene"}, {"p", "previous (history)"},
+            {"a", "auto director on/off"}, {"m", "MilkDrop mode"},
             {"c", "cycle palette"}, {"r", "new look / random preset"}, {"+ -", "sensitivity"},
             {"[ ]", "effect intensity"}, {"h", "HUD"}, {"f b", "favourite / ban preset"},
             {"R", "reload shaders"}, {"i", "info"}, {"?", "this help"}, {"q", "quit"},
         };
         const int n = sizeof keys / sizeof keys[0];
+        static_assert(sizeof keys / sizeof keys[0] == HELP_N, "update Ui::HELP_N with the help table");
         const bool two = sc.cols >= 74;
         const int colW = 34, rowsN = two ? (n + 1) / 2 : n;
         const int W = two ? 2 * colW + 4 : std::min(colW + 4, sc.cols - 2);

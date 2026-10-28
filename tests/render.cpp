@@ -4,6 +4,7 @@
 #include "../director.hpp"
 #include "../engine.hpp"
 #include "../gpu.hpp"
+#include "../tui.hpp"
 #include "fixtures.hpp"
 
 #include <cerrno>
@@ -91,6 +92,43 @@ static int deletedTextures = 0;
 static void TVGL_API countDeletedTextures(GLsizei count, const GLuint *textures) {
     deletedTextures += count;
     deleteTexturesDriver(count, textures);
+}
+
+// Ordered scene navigation as viz.cpp drives it: sceneStep from the engine's requested target,
+// applied with a nonzero fade, with no render between requests.
+static void sceneNavigation(Engine &eng) {
+    const int count = int(eng.scenes.size());
+    if (count < 1) return check(false, "scene navigation targets", "no scenes loaded");
+    std::mt19937 rng(77);
+    auto go = [&](int target) {
+        eng.show(target, makeVariant(eng.scenes[target].palettes, "auto", nullptr, rng), 2.5f, 0);
+    };
+    eng.show(0, makeVariant(eng.scenes[0].palettes, "auto", nullptr, rng), 0, 0);
+    bool forward = eng.current() == 0, backward = true, fading = true, wraps = true;
+    int expected = 0;
+    for (int i = 0; i < 2 * count + 3; i++) {  // more than two full cycles
+        const int next = sceneStep(eng.current(), +1, count);
+        go(next);
+        expected = (expected + 1) % count;
+        forward &= eng.current() == next && eng.current() == expected;
+        fading &= eng.fading();  // a previous valid slot exists, so each request crossfades
+    }
+    for (int i = 0; i < 2 * count + 3; i++) {
+        const int next = sceneStep(eng.current(), -1, count);
+        go(next);
+        expected = (expected + count - 1) % count;
+        backward &= eng.current() == next && eng.current() == expected;
+        fading &= eng.fading();
+    }
+    go(0);
+    go(sceneStep(eng.current(), -1, count));
+    wraps &= eng.current() == count - 1;
+    go(sceneStep(eng.current(), +1, count));
+    wraps &= eng.current() == 0;
+    check(forward && backward && wraps, "scene navigation targets are immediate and wrap",
+          std::to_string(count) + " scenes; forward and backward cycles, first/last wraps");
+    check(fading, "scene navigation crossfades rapid requests", "eng.fading() after every request with a previous slot");
+    eng.show(0, makeVariant(eng.scenes[0].palettes, "auto", nullptr, rng), 0, 0);
 }
 
 static int regressions(Engine &eng) {
@@ -269,6 +307,7 @@ int main(int argc, char **argv) {
         check(ok, "all 14 built-in scenes load, in display order", std::to_string(eng.scenes.size()) + " scenes");
     }
     if (!eng.resize(W, H)) return printf("FAIL  render targets at %dx%d\n", W, H), 1;
+    sceneNavigation(eng);
     for (int i = 1; i < argc; i++) if (!strcmp(argv[i], "--regressions")) return regressions(eng);
     if (!sheets.empty()) {
         std::error_code ec;

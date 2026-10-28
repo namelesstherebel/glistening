@@ -73,8 +73,11 @@ static const char *USAGE =
     "  --check-audio     capture system output for --seconds (default 3) with a quiet test tone, report\n"
     "  --version         print the version and backends, and exit\n"
     "  --help            this help\n"
-    "keys: tab panel, ? help, 1-9 scenes, space/→ next, ← previous, a auto, m MilkDrop,\n"
-    "      c palette, + - sensitivity, [ ] intensity, h HUD, r new look, q quit\n";
+    "keys: 1-9 scenes 1-9; z x v g t scenes 10-14 (Cathedral, Magnetic, Loom, PaperCity,\n"
+    "      Clockwork); ←/→ previous/next scene in order, wrapping through all built-ins;\n"
+    "      n/space random next; p previous from history; tab panel (←/→ then act on the\n"
+    "      selected setting); ? help; a auto; m MilkDrop; c palette; + - sensitivity;\n"
+    "      [ ] intensity; h HUD; r new look; q quit\n";
 
 struct Options {
     std::string scene, file, dump;
@@ -677,6 +680,22 @@ int main(int argc, char **argv) {
             case Act::None: break;
             case Act::Quit: g_quit = 1; break;
             case Act::Scene: showScene(a.arg, 1.2f, ""); break;
+            case Act::SceneNext:
+            case Act::ScenePrev:
+                if (!s.milkdrop) {  // ordered neighbour of the requested target, so repeats advance during a fade
+                    const int to = sceneStep(eng.current(), a.a == Act::SceneNext ? +1 : -1, int(eng.scenes.size()));
+                    if (to >= 0) showScene(to, 1.2f, a.a == Act::SceneNext ? "next" : "previous");
+                    break;
+                }
+                // MilkDrop: arrows keep next preset / history semantics
+                if (a.a == Act::SceneNext) showPreset(md.lib->pick(mood(false), rng), false, "");
+                else if (!md.history.empty()) {
+                    md.history.pop_back();
+                    while (!md.history.empty() && md.lib->p[md.history.back()].flag < 0) md.history.pop_back();
+                    if (!md.history.empty()) showPreset(md.history.back(), true, "previous", false);
+                    else md.history.push_back(md.cur);
+                } else md.history.push_back(md.cur);
+                break;
             case Act::Next:
                 if (s.milkdrop) showPreset(md.lib->pick(mood(false), rng), false, "");
                 else showScene(picker.pick(sceneEnergy(L.music.energySlow, false), rng), 1.2f, "next");

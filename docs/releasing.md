@@ -5,16 +5,19 @@ Release-readiness runbook for `glistening` 0.1.0 (Node >=20). **Nothing has been
 ## Status (27 Oct)
 
 - Local checks passed on Apple Silicon: 9 native tests, npm 10 tests, install smoke. All 14 demos verified (6.4 MiB).
-- GitHub workflow runs on pull requests and manually only. Artifacts are kept 2 days. At remote `fef00e2`, Mac arm64 failed, the other three passed, and the bundle step was skipped.
+- GitHub workflow runs on pull requests and manually only. Artifacts are kept 2 days.
+- Historical AEC head, run 40592503463: all four native builds and the full npm bundle passed; the four archive integrity checks and the final bundle clean-install passed on Linux CI and Apple Silicon.
+- The keyboard change supersedes those AEC binaries. CI and artifacts for the new head are pending, and no release exists yet.
 - No tag or release pipeline exists.
-- The host will prepare a local Apple Silicon archive only and report its hashes. That is not universal release readiness.
+- The maintainer personally tested live playback on 27 Oct 2026. The hosted zero-frame diagnostic never passed, OS consent was not inferred, and no further consent or retest is required.
+- The release is authorized, pending coordinated review and the required current-head Pullfrog review.
 
 ## Blockers
 
-- A bundle needs four genuine, freshly built native executables. Linux and Windows binaries from earlier local builds were not verified against fresh source. Do not use them.
-- npm registry lookup for `glistening` returned 404, and `npm whoami` returned ENEEDAUTH. The owner must choose and authorize an existing account, version and payload. Do not create credentials or guess a namespace.
+- A bundle needs four genuine, freshly built native executables from the exact release source. Binaries from the superseded AEC head must not be reused.
+- npm registry lookup for `glistening` returned 404, and `npm whoami` returned ENEEDAUTH. This blocks registry publication only, not a GitHub tarball or release. Registry publication needs an owner-selected existing account, version and payload. Do not create credentials or guess a namespace.
 - Review billing is no longer an open hold for draft PR publication. The signed-in Pullfrog console (https://pullfrog.com/console/namelesstherebel/glistening, verified 27 Oct 2026) shows: provider ChatGPT (Codex), an existing connected subscription inherited from the account; model `openai/gpt-6.1-sol` (High); account plan Free; personal BYOK API keys unconfigured; no Router used. Draft PRs checkbox OFF, auto-merge OFF, Fix CI on non-Pullfrog PRs OFF, and no active runs. A draft PR therefore does not trigger Pullfrog review, automatic CodeRabbit is disabled, and no settings were changed. Normal native/semgrep CI may run. The draft review check is expected to be missing. An actual review verdict is still required before merge or release. No new credit spending or API fallback is authorized.
-- Historical Pullfrog review run 39801015273 (job 119901382450) reviewed PR 6 head `fef00e2` using Sol. It does not cover any newer head.
+- Historical Pullfrog review run 39801015273 (job 119901382450) reviewed PR 6 head `fef00e2` using Sol. It does not cover any newer head; a current-head Pullfrog review is required.
 
 ## Targets
 
@@ -49,10 +52,10 @@ Release-readiness runbook for `glistening` 0.1.0 (Node >=20). **Nothing has been
 
 - Exact approved source commit and version.
 - Applicable CI passing, plus a review of the current head by the trusted Pullfrog app (1768019).
-- Owner visual acceptance, as the repository rules already require. No additional generic owner release approval gate applies.
-- Proposed version 0.1.0 from the exact source, after CI, review and artifact checks, is authorized as the download goal.
+- Owner live-playback testing is done (27 Oct 2026); no further consent or retest is required.
+- Release of version 0.1.0 from the exact source is authorized, after CI, review and artifact checks on the new head.
 - No merge or deploy bypass.
-- npm account authentication is absent (ENEEDAUTH). This remains a separate npm publication blocker and needs an owner-selected account.
+- npm account authentication is absent (ENEEDAUTH). This blocks registry publication only and needs an owner-selected account; it does not block a GitHub tarball or release.
 
 ## Binary archive requirements
 

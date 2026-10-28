@@ -11,7 +11,7 @@ Music, rendered in your terminal.
 
 ## Installation
 
-gListening is installed **from source**. There are no releases and no npm package at present.
+gListening is installed **from source**. No release has been published yet.
 
 ### Prerequisites
 
@@ -20,7 +20,7 @@ gListening is installed **from source**. There are no releases and no npm packag
 - **Windows 10 1809+ / 11:** Visual Studio 2022 with C++, CMake
 - **ffmpeg:** needed only for file input (`--file`) on macOS and Windows
 
-All platforms need CMake 3.21+ and a C++17 compiler. Node 20 is the minimum for the optional launcher tests; a supported LTS release is recommended. See [docs/install.md](docs/install.md) for required vs optional OS dependencies and official installers, and [docs/releasing.md](docs/releasing.md) for the publication gates.
+All platforms need CMake 3.21+ and a C++17 compiler. Node 20 is the minimum for the optional launcher tests; a supported LTS release is recommended. See [docs/install.md](docs/install.md) for required vs optional OS dependencies and official installers.
 
 Copy/paste dependency commands:
 
@@ -60,7 +60,11 @@ Optional MilkDrop mode is Linux-only, needs projectM 3, and is not bundled. No M
 
 ### Testing status
 
-On Apple Silicon (27 Oct), the 9 native tests and 10 npm tests passed. Other operating systems have configured targets but were not retested locally. `npm test` only exercises the launcher; Node 20 is optional. Full evidence and limits: [docs/verification.md](docs/verification.md).
+- **Prior CI:** AEC run 40592503463 passed all 4 native jobs and the npm bundle job. That run predates the current keyboard changes.
+- **Current keyboard head:** checks are available via PR #7; this README does not report their result.
+- **Local:** on Apple Silicon (27 Oct), the 9 native tests and 10 npm tests passed. Other operating systems have configured targets but were not retested locally.
+
+`npm test` only exercises the launcher; Node 20 is optional. Full evidence and limits: [docs/verification.md](docs/verification.md).
 
 ## Usage
 
@@ -79,7 +83,7 @@ From a source build, run the uninstalled executable from the repository root:
 
 On Windows the executable is `build\Release\glistening.exe`.
 
-`--check-audio` plays a quiet tone and checks that it comes back through output loopback. Local live capture is **not verified**. The latest macOS diagnostic received 0 frames and the cause is unproven; see [docs/verification.md](docs/verification.md). Please check macOS System Settings > Privacy & Security > Screen & System Audio Recording for the terminal or app hosting gListening, and confirm the correct default output device is selected. No audio driver is required.
+`--check-audio` plays a quiet tone and checks that it comes back through output loopback. The maintainer personally tested live playback on 27 Oct 2026. The hosted zero-frame diagnostic never passed (0 frames, cause unproven), so `--check-audio` is not a verified pass; see [docs/verification.md](docs/verification.md). If capture is silent, check macOS System Settings > Privacy & Security > Screen & System Audio Recording for the terminal or app hosting gListening, and confirm the correct default output device is selected. No audio driver is required.
 
 System audio sources:
 
@@ -116,15 +120,37 @@ Each preview is a real 6-second offscreen render with original synthesized audio
 |---|---|
 | `tab` | Control panel |
 | `?` | Key help |
-| `1`–`9` | Choose scene |
-| `space`, `→`/`n` | Next scene |
-| `←`/`p` | Previous scene |
+| `1`–`9`, `z` `x` `v` `g` `t` | Choose scene (mapping below) |
+| `→` / `←` | Next / previous scene in order, wrapping across all 14 built-ins (outside the control panel) |
+| `n`, `space` | Random next scene |
+| `p` | Previous scene from history |
 | `a` | Auto director on/off |
 | `c` | Cycle palette |
 | `r` | New look |
 | `+` `-` / `[` `]` | Sensitivity / intensity |
 | `h` | HUD |
 | `q`/`esc` | Quit |
+
+In the control panel, `←`/`→` adjust the selected setting and `↑`/`↓` move within the panel or help, unchanged. In MilkDrop mode, `←`/`→` keep their preset behavior.
+
+Scene shortcuts, in gallery order:
+
+| Key | Scene |
+|---|---|
+| `1` | `aurora` |
+| `2` | `mercury` |
+| `3` | `galaxy` |
+| `4` | `tunnel` |
+| `5` | `ridgeline` |
+| `6` | `ink` |
+| `7` | `quasicrystal` |
+| `8` | `phosphor` |
+| `9` | `rainglass` |
+| `z` | `cathedral` |
+| `x` | `magnetic` |
+| `v` | `loom` |
+| `g` | `papercity` |
+| `t` | `clockwork` |
 
 ## Configuration
 
