@@ -5,6 +5,7 @@
 #include "platform.hpp"
 
 #include <windows.h>
+#include "console_keys.hpp"
 #include <shellapi.h>
 
 #include <algorithm>
@@ -171,8 +172,10 @@ void write(const std::string &s) {
     }
 }
 
-// Console input records: key-down characters (VT sequences included, thanks
-// to ENABLE_VIRTUAL_TERMINAL_INPUT) as UTF-8; buffer-size records flag a resize.
+// Console input records: key-down characters as UTF-8 (a host may deliver VT
+// sequences as character records under ENABLE_VIRTUAL_TERMINAL_INPUT, but that
+// conversion is only documented for ReadFile/ReadConsole). Zero-character arrow
+// records are turned into CSI sequences; buffer-size records flag a resize.
 std::string readInput(int waitMs) {
     HANDLE i = in();
     std::string s;
@@ -187,7 +190,10 @@ std::string readInput(int waitMs) {
             if (r[k].EventType == WINDOW_BUFFER_SIZE_EVENT) InterlockedExchange(&g_resizedEvent, 1);
             if (r[k].EventType != KEY_EVENT || !r[k].Event.KeyEvent.bKeyDown) continue;
             const wchar_t c = r[k].Event.KeyEvent.uChar.UnicodeChar;
-            if (!c) continue;
+            if (!c) {
+                s += zeroCharArrowSequence(r[k].Event.KeyEvent);
+                continue;
+            }
             if (c >= 0xD800 && c < 0xDC00) {
                 high = c;
                 continue;
