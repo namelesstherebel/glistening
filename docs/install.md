@@ -6,14 +6,16 @@ Official links were checked on 27 Oct 2026. Commands for Ubuntu, Debian and Wind
 
 ## Prebuilt downloads
 
-Native archives need no Node.js and no compiler. Live audio needs the runtime requirements below. FFmpeg is optional on every OS and only for `--file`.
+Native archives need no Node.js and no compiler. The runtime requirements below still apply. FFmpeg is optional on every OS and only for `--file`.
 
 ### Runtime requirements (prebuilt)
 
 - **macOS:** 14.2 or later.
 - **Windows:** 10 1809+ or 11, x64, with an OpenGL 3.3 graphics driver.
-- **Linux:** x64 with EGL and OpenGL 3.3, plus PulseAudio or PipeWire-pulse and `parec` for live audio.
+- **Linux:** x64 with glibc 2.34 or later, a libstdc++ runtime providing `GLIBCXX_3.4.29` (GCC 11.1-era or later), EGL and OpenGL 3.3, plus PulseAudio or PipeWire-pulse and `parec` for live audio.
 - **FFmpeg (optional):** only for `--file`, on all OSes.
+
+The Linux runtime minimums apply to both the native archive and the executable in the npm tarball. If your system has older or incompatible runtimes, [build from source](#build-from-source) instead.
 
 | Platform | Asset | SHA-256 |
 |---|---|---|
