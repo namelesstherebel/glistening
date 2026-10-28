@@ -5,9 +5,9 @@
 Release: https://github.com/namelesstherebel/glistening/releases/tag/v0.1.0 (latest). Tag `v0.1.0` targets merge `34deaa8992c05eb775392a6a88714caa28b5d56e`.
 
 - **Source and CI:** tested CI run 40614502474 built commit `0944250b7b54650a9bdd3f27a4681527838e500b` from source head `d68325d76a92cc83e6ddd02006e8d29b4d86d126`. Its tree `05e087344db1e9904b6ad87003bb124f8538f1b7` is identical to the merged tree. The merge commit itself was not rebuilt.
-- **Passed:** all 4 native jobs and the npm bundle job; Windows 10 tests and the other 9 checks; both Semgrep checks and merge Semgrep run 40621241439. The exact Pullfrog approval succeeded and PR #7 was merged.
+- **Passed:** all 4 native jobs and the npm bundle job; 10 native tests on Windows and 9 on each other platform; both Semgrep checks and merge Semgrep run 40621241439. The exact Pullfrog approval succeeded and PR #7 was merged.
 - **Public artifacts:** all 9 release assets were fetched anonymously (HTTP 200) and their SHA-256 digests matched. The public npm tarball `glistening-0.1.0-d68325d.tgz` was installed offline and its self-test passed. Digests are listed in [releasing.md](releasing.md#release-assets).
-- **Signing:** Intel macOS is unsigned, Apple Silicon is ad hoc signed, and notarization is not claimed.
+- **Signing:** the Intel macOS build is unsigned and the Apple Silicon build is ad hoc signed. Notarization is not claimed.
 - **npm registry:** not published. `npm whoami` returned ENEEDAUTH, which blocks registry publication only, not the GitHub release.
 - **Live audio:** the maintainer personally tested live playback and accepted it; no further consent request is planned. The hosted diagnostic did not pass (0 of 132300 frames over 3 s, with a stalled teardown in `TapCapture::~TapCapture`); its root cause is not asserted, and it is not claimed as a pass.
 - **License:** GPL-3.0-only.

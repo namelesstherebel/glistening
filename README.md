@@ -84,7 +84,7 @@ Optional MilkDrop mode is Linux-only, needs projectM 3, and is not bundled. No M
 
 ### Testing status
 
-- **Release CI:** the tested CI run 40614502474 built the release source and passed all 4 native jobs and the npm bundle job, with the Windows 10 tests and the other 9 checks passing. Both Semgrep checks passed. PR #7 was merged with the required Pullfrog approval.
+- **Release CI:** the tested CI run 40614502474 built the release source and passed all 4 native jobs and the npm bundle job, with 10 native tests passing on Windows and 9 on each other platform. Both Semgrep checks passed. PR #7 was merged with the required Pullfrog approval.
 - **Public artifacts:** all 9 release assets were downloaded anonymously and digest-checked; the public npm tarball was installed offline and self-tested.
 - **Live audio:** the maintainer personally tested live playback. The hosted diagnostic did not pass.
 

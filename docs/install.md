@@ -6,7 +6,14 @@ Official links were checked on 27 Oct 2026. Commands for Ubuntu, Debian and Wind
 
 ## Prebuilt downloads
 
-Native archives need no Node.js. Live audio needs the runtime dependencies for your OS (see [Requirements](#requirements)); FFmpeg is optional and only for `--file`.
+Native archives need no Node.js and no compiler. Live audio needs the runtime requirements below. FFmpeg is optional on every OS and only for `--file`.
+
+### Runtime requirements (prebuilt)
+
+- **macOS:** 14.2 or later.
+- **Windows:** 10 1809+ or 11, x64, with an OpenGL 3.3 graphics driver.
+- **Linux:** x64 with EGL and OpenGL 3.3, plus PulseAudio or PipeWire-pulse and `parec` for live audio.
+- **FFmpeg (optional):** only for `--file`, on all OSes.
 
 | Platform | Asset | SHA-256 |
 |---|---|---|
@@ -65,23 +72,20 @@ Expand-Archive glistening-0.1.0-win32-x64-d68325d.zip -DestinationPath .
 
 ### npm tarball (Node 20+)
 
-The tarball contains all four native executables. It is a GitHub download, not an npm registry package: `npm install -g glistening` does not work.
+The tarball contains all four native executables. It is a GitHub download. The package is not published to the npm registry, so install from the GitHub tarball URL below. Run these two lines in PowerShell or a POSIX shell with Node 20+:
 
-```sh
-mkdir glistening-0.1.0-npm && cd glistening-0.1.0-npm
-curl -fLO https://github.com/namelesstherebel/glistening/releases/download/v0.1.0/glistening-0.1.0-d68325d.tgz
-echo "980837fab8247b7583749a3089a1103bde45e85f05e3874e3537a6be9f62e98d  glistening-0.1.0-d68325d.tgz" | shasum -a 256 -c
-npm install --prefix ./glistening-local ./glistening-0.1.0-d68325d.tgz
-./glistening-local/node_modules/.bin/glistening --self-test
+```
+npm install --prefix ./glistening-local --ignore-scripts --no-audit --no-fund https://github.com/namelesstherebel/glistening/releases/download/v0.1.0/glistening-0.1.0-d68325d.tgz
+node ./glistening-local/node_modules/glistening/bin/glistening.cjs --self-test
 ```
 
-On Linux, use `sha256sum -c` instead of `shasum -a 256 -c`.
+The tarball's SHA-256 is in the table above.
 
 ## Build from source
 
-Source builds need the compilers and tools below.
+Source builds need the compilers and tools below. Prebuilt archives do not.
 
-### Requirements
+### Source requirements
 
 - A C++17 compiler and OpenGL 3.3.
 - [CMake](https://cmake.org/download/) 3.21 or later on all platforms.

@@ -8,9 +8,9 @@ Runbook and record for `glistening` 0.1.0 (Node >=20 for the npm tarball). For e
 
 - Tag `v0.1.0` targets merge commit `34deaa8992c05eb775392a6a88714caa28b5d56e` (PR #7). The merge commit was not rebuilt.
 - The artifacts were built by tested CI run 40614502474 from source head `d68325d76a92cc83e6ddd02006e8d29b4d86d126` (build commit `0944250b7b54650a9bdd3f27a4681527838e500b`). The source tree `05e087344db1e9904b6ad87003bb124f8538f1b7` is identical to the merged tree.
-- All four native jobs and the npm bundle job passed, with Windows 10 tests and the other 9 checks passing. Both Semgrep checks and the merge Semgrep run 40621241439 passed. Pullfrog approval was exact and successful.
+- All four native jobs and the npm bundle job passed, with 10 native tests passing on Windows and 9 on each other platform. Both Semgrep checks and the merge Semgrep run 40621241439 passed. Pullfrog approval was exact and successful.
 - Public check: all nine release assets were downloaded anonymously (HTTP 200) and digest-checked. The public npm tarball was installed offline and its self-test passed.
-- Not claimed: Intel macOS is unsigned, Apple Silicon macOS is ad hoc signed, and notarization is not claimed.
+- Signing: the Intel macOS build is unsigned and the Apple Silicon macOS build is ad hoc signed. Notarization is not claimed.
 - Live audio: the maintainer personally tested live playback and accepted it. The hosted diagnostic did not pass, and no further consent request or retest is planned.
 - License: GPL-3.0-only, preserved in the release as `LICENSE`.
 
