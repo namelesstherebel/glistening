@@ -63,7 +63,7 @@ The package is **not** published to the npm registry. `npm whoami` returned ENEE
 
    This installs with `--ignore-scripts`, checks the manifest, checksums and file allow-list (`BUNDLE CONTENTS PASS`), then runs the installed launcher's `--version` and `--self-test` (`INSTALL SMOKE PASS`).
 
-Release requirements: an exact approved source commit and version, applicable CI passing, a current-head review by the trusted Pullfrog app, and no merge or deploy bypass. Use binaries built from the exact release source; never reuse binaries from an earlier head.
+Release requirements: an exact approved source commit and version, applicable CI passing, and no merge or deploy bypass. Use binaries built from the exact release source; never reuse binaries from an earlier head.
 
 ## Binary archive requirements
 
